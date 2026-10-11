@@ -1,0 +1,1260 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tadam</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout : page beige chaud, un grand bloc rouge foncé en haut (accroche + quiz), l'idée révélée en étiquette cadeau sur le beige. Un seul thème clair, assumé. */
+:root{
+  --bg:#F3E3CE; --bg-2:#EAD4B8; --paper:#FCF4E8; --ink:#2A140E; --ink-soft:#6B4A3C; --line:#DCC1A2;
+  --red:#8E1B14; --red-deep:#6C110B; --red-hi:#A92A1F; --cream:#F7E6CF; --cream-soft:rgba(247,230,207,.74); --cream-faint:rgba(247,230,207,.1); --cream-line:rgba(247,230,207,.3);
+  --orange:#F07A22; --yellow:#FFC53D;
+  --shadow:0 1px 0 rgba(42,20,14,.05), 0 22px 44px -26px rgba(108,17,11,.55);
+  --display:"Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --body:"Figtree", "Segoe UI", system-ui, sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+img{max-width:100%}
+body{background:var(--bg); color:var(--ink); font:400 1rem/1.55 var(--body); padding-inline:clamp(16px,3vw,32px); padding-block:0 40px}
+.wrap{max-width:1200px; margin-inline:auto}
+a{color:inherit}
+button{font:inherit; color:inherit; cursor:pointer; background:none; border:0}
+:focus-visible{outline:3px solid var(--orange); outline-offset:3px; border-radius:10px}
+
+.top{display:flex; align-items:center; justify-content:space-between; gap:16px; padding-block:20px; flex-wrap:wrap}
+.logo{font:800 2.5rem/1 var(--display); letter-spacing:-.055em; text-decoration:none; color:var(--red)}
+.logo b{color:var(--orange); margin-left:.02em}
+.top nav{display:flex; gap:20px; font-weight:600; font-size:.95rem; color:var(--ink-soft)}
+.top nav a{text-decoration:none}
+.top nav a:hover{color:var(--red)}
+
+/* Bloc rouge */
+.stage{padding-block:clamp(8px,2vw,24px) 0; display:grid; grid-template-columns:minmax(0,1fr) minmax(0,560px); gap:clamp(26px,4vw,56px); align-items:start}
+.fine{margin:18px 0 0; font-size:.93rem; color:var(--ink-soft)}
+h1{font:800 clamp(2.5rem,6vw,4.9rem)/.95 var(--display); letter-spacing:-.045em; margin:.35em 0 .32em; text-wrap:balance}
+h1 em{font-style:normal; color:var(--red)}
+h1 em b{color:var(--orange)}
+.lead{font-size:1.12rem; color:var(--ink-soft); max-width:31em; margin:0}
+
+
+
+
+/* Quiz */
+.quiz{background:var(--red); color:var(--cream); border-radius:24px; padding:24px clamp(18px,2.6vw,28px) 22px; box-shadow:0 20px 40px -24px rgba(0,0,0,.5)}
+.quiz-head{display:flex; align-items:center; justify-content:space-between; gap:12px}
+.count{font:600 .85rem/1 var(--body); color:var(--cream-soft); font-variant-numeric:tabular-nums}
+.steps-nav{display:flex; gap:4px 14px; flex-wrap:wrap; margin:0; padding:0; list-style:none}
+.steps-nav button, .steps-nav span{font:600 .85rem/1 var(--body); color:var(--cream-soft); padding:4px 0 6px; border-bottom:2px solid transparent; opacity:.55}
+.steps-nav button{cursor:default}
+.steps-nav .on{opacity:1; color:var(--cream); border-bottom-color:var(--yellow)}
+.steps-nav .done{opacity:1; cursor:pointer}
+.steps-nav button.done:hover{color:var(--cream); border-bottom-color:var(--orange)}
+.answers{display:flex; flex-wrap:wrap; gap:6px; margin-top:14px}
+.answers button{font-size:.8rem; font-weight:600; padding:5px 10px 5px 26px; border-radius:8px; color:var(--cream-soft); border:1px solid var(--cream-line); position:relative}
+.answers button::before{content:""; position:absolute; left:10px; top:50%; width:8px; height:8px; margin-top:-4px; border-radius:50%; background:var(--orange)}
+.answers button:hover{color:var(--cream); border-color:var(--yellow)}
+.counter{color:var(--yellow); font-variant-numeric:tabular-nums}
+.q-title{font:700 clamp(1.45rem,2.5vw,1.8rem)/1.12 var(--display); letter-spacing:-.025em; margin:18px 0 4px; text-wrap:balance}
+.q-help{margin:0 0 14px; color:var(--cream-soft); font-size:.93rem}
+.block{display:grid; gap:8px; margin-top:14px}
+.lbl{font:600 .9rem/1.2 var(--body); color:var(--cream-soft)}
+.pills{display:flex; flex-wrap:wrap; gap:7px}
+.pill{border:1.5px solid var(--cream-line); background:var(--cream-faint); color:var(--cream); border-radius:10px; padding:8px 13px; font-weight:600; font-size:.93rem; line-height:1.2; transition:border-color .15s, background .15s, transform .15s}
+.pill:hover{border-color:var(--yellow)}
+.pill[aria-pressed="true"]{background:var(--cream); color:var(--red-deep); border-color:var(--cream)}
+.pill[aria-disabled="true"]{opacity:.4; cursor:not-allowed}
+.pill[aria-disabled="true"]:hover{border-color:var(--cream-line)}
+.tiles{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px}
+.tile{text-align:left; border:1.5px solid var(--cream-line); background:var(--cream-faint); color:var(--cream); border-radius:12px; padding:11px 13px; font-weight:600; display:grid; gap:2px; transition:border-color .15s, background .15s}
+.tile small{font-weight:500; font-size:.8rem; color:var(--cream-soft)}
+.tile:hover{border-color:var(--yellow)}
+.tile[aria-pressed="true"]{background:var(--cream); color:var(--red-deep); border-color:var(--cream)}
+.tile[aria-pressed="true"] small{color:var(--red)}
+.seg-row{display:grid; gap:6px}
+.seg{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:4px; background:var(--cream-faint); border-radius:13px; padding:4px}
+.seg button{border-radius:10px; padding:9px 6px; font-weight:600; font-size:.9rem; color:var(--cream-soft); transition:background .15s, color .15s}
+.seg button:hover{color:var(--cream)}
+.seg button[aria-pressed="true"]{background:var(--cream); color:var(--red-deep)}
+.quiz-foot{display:flex; justify-content:space-between; align-items:center; gap:12px; margin-top:22px}
+.back{font-weight:600; font-size:.93rem; color:var(--cream-soft); padding:8px 4px; border-radius:8px}
+.back:hover{color:var(--cream)}
+.back[disabled]{visibility:hidden}
+
+.q-anim{animation:slidein .3s ease both}
+@keyframes slidein{from{opacity:.001; transform:translateX(12px)}}
+
+.btn{display:inline-flex; align-items:center; justify-content:center; gap:8px; border-radius:99px; padding:13px 22px; font-weight:700; text-decoration:none; transition:transform .15s, background .15s, opacity .15s; text-align:center}
+.btn-cream{background:var(--cream); color:var(--red-deep)}
+.btn-cream:hover{transform:translateY(-2px)}
+.btn-cream[disabled]{opacity:.4; cursor:not-allowed; transform:none}
+.btn-red{background:var(--red); color:var(--cream)}
+.btn-red:hover{background:var(--red-hi); transform:translateY(-2px)}
+.btn-line{border:2px solid var(--ink); color:var(--ink)}
+.btn-line:hover{background:var(--ink); color:var(--cream)}
+.link{font-weight:600; color:var(--ink-soft); text-decoration:underline; text-underline-offset:3px; padding:6px 2px}
+.link:hover{color:var(--red)}
+
+/* Résultat */
+.results{padding-block:48px 56px; scroll-margin-top:12px}
+.res-head{display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:14px 30px; margin-bottom:22px}
+.res-head h2{font:800 clamp(3rem,8vw,5.4rem)/.85 var(--display); letter-spacing:-.05em; margin:0; color:var(--red)}
+.res-head h2 b{color:var(--orange)}
+.recap{display:flex; flex-wrap:wrap; gap:6px; max-width:720px}
+.recap span{background:var(--paper); border:1px solid var(--line); border-radius:99px; padding:6px 11px; font-size:.86rem; font-weight:600; color:var(--ink-soft)}
+.recap span b{color:var(--ink); font-weight:700}
+
+.idea{background:var(--paper); border-radius:26px; box-shadow:var(--shadow); padding:clamp(24px,3.4vw,42px); display:grid; grid-template-columns:minmax(0,1.35fr) minmax(0,1fr); gap:clamp(22px,3.4vw,44px); position:relative;
+  -webkit-mask:radial-gradient(circle 10px at 32px 32px,transparent 98%,#000 100%); mask:radial-gradient(circle 10px at 32px 32px,transparent 98%,#000 100%)}
+.idea::before{content:""; position:absolute; left:20px; top:20px; width:24px; height:24px; border-radius:50%; border:2px dashed var(--line)}
+.idea.anim{animation:reveal .45s cubic-bezier(.2,1.2,.4,1) both}
+@keyframes reveal{from{opacity:.001; transform:translateY(18px) rotate(-.6deg)}}
+.idea-main{display:grid; gap:16px; align-content:start; min-width:0}
+.chips{display:flex; flex-wrap:wrap; gap:6px; padding-left:34px; min-height:26px; align-items:center}
+.chip{font:600 .8rem/1 var(--body); padding:6px 10px; border-radius:6px; background:var(--bg); color:var(--ink-soft)}
+.chip.hot{background:var(--red); color:var(--cream)}
+.chip.diy{background:var(--yellow); color:#3A2408}
+.chip.perso{background:var(--orange); color:#2A1206}
+.idea h3{font:800 clamp(2rem,4.2vw,3.1rem)/1 var(--display); letter-spacing:-.04em; margin:0; text-wrap:balance}
+.why{font-size:1.12rem; margin:0; max-width:34em}
+.reason{margin:0; color:var(--ink-soft); font-size:.97rem; max-width:36em; padding-left:14px; border-left:3px solid var(--yellow)}
+.cta{display:grid; gap:8px; justify-items:start}
+.aff{font-size:.78rem; color:var(--ink-soft)}
+.how-to{margin:0; padding:0; list-style:none; counter-reset:s; display:grid; gap:10px}
+.how-to li{counter-increment:s; display:grid; grid-template-columns:28px minmax(0,1fr); gap:10px; align-items:start}
+.how-to li::before{content:counter(s); width:28px; height:28px; border-radius:50%; background:var(--bg); display:grid; place-items:center; font:700 .82rem/1 var(--body); color:var(--red)}
+.side{display:grid; gap:14px; align-content:start; min-width:0}
+.facts{margin:0; display:grid; gap:0; background:var(--bg); border-radius:16px; padding:6px 16px}
+.facts div{display:flex; justify-content:space-between; gap:14px; padding:10px 0; border-bottom:1px dashed var(--line)}
+.facts div:last-child{border-bottom:0}
+.facts dt{color:var(--ink-soft); font-size:.9rem}
+.facts dd{margin:0; font-weight:700; text-align:right; font-size:.93rem}
+.kit{background:var(--red); color:var(--cream); border-radius:18px; padding:20px; display:grid; gap:12px}
+.kit-top{display:flex; justify-content:space-between; align-items:baseline; gap:10px}
+.kit-top strong{font:800 1.2rem/1.1 var(--display); letter-spacing:-.02em}
+.price{font:800 1.35rem/1 var(--display); color:var(--yellow); white-space:nowrap; font-variant-numeric:tabular-nums}
+.kit p{margin:0; font-size:.9rem; color:var(--cream-soft)}
+.kit ul{margin:0; padding:0; list-style:none; display:grid; gap:6px; font-size:.92rem}
+.kit li{display:grid; grid-template-columns:16px minmax(0,1fr); gap:8px}
+.kit li::before{content:""; width:9px; height:9px; margin-top:7px; border-radius:2px; background:var(--yellow); transform:rotate(45deg)}
+.fmt{display:inline-block; font:600 .8rem/1 var(--body); background:var(--cream-faint); border:1px solid var(--cream-line); padding:6px 9px; border-radius:99px; justify-self:start}
+
+.idea-nav{display:flex; flex-wrap:wrap; align-items:center; gap:12px 20px; margin-top:20px}
+.dots{display:flex; gap:6px; align-items:center}
+.dots i{width:9px; height:9px; border-radius:50%; background:var(--line)}
+.dots i.on{background:var(--red); width:24px; border-radius:99px}
+.idea-nav .count{color:var(--ink-soft)}
+.idea-nav .spacer{flex:1}
+
+/* Sections */
+
+
+
+
+
+
+
+
+
+
+
+
+.top-nav{display:flex; gap:20px; flex-wrap:wrap}
+.how{padding-block:64px 8px}
+.how h2{font:800 clamp(1.7rem,3.4vw,2.4rem)/1 var(--display); letter-spacing:-.04em; margin:0 0 28px}
+.how ol{list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:28px}
+.how li{display:grid; gap:8px; align-content:start}
+.how .n{font:800 3rem/1 var(--display); color:var(--red); letter-spacing:-.05em}
+.how h3{font:700 1.2rem/1.2 var(--display); margin:0}
+.how p{margin:0; color:var(--ink-soft); max-width:30em}
+.vitrine{padding-block:64px 24px}
+.vitrine-head{display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:8px 24px; margin-bottom:26px}
+.vitrine h2, .note h2{font:800 clamp(1.7rem,3.4vw,2.4rem)/1 var(--display); letter-spacing:-.04em; margin:0; text-wrap:balance}
+.vitrine-head p{margin:6px 0 0; color:var(--ink-soft)}
+.tags{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:22px 18px; align-items:start}
+.xtag{background:var(--paper); border-radius:14px 14px 14px 4px; padding:44px 18px 18px; display:grid; gap:10px; box-shadow:var(--shadow); position:relative; transition:transform .2s ease; transform:rotate(var(--tilt,0deg)); min-width:0;
+  -webkit-mask:radial-gradient(circle 7px at 24px 22px,transparent 98%,#000 100%); mask:radial-gradient(circle 7px at 24px 22px,transparent 98%,#000 100%)}
+.xtag:nth-child(4n+1){--tilt:-1.4deg} .xtag:nth-child(4n+2){--tilt:.9deg} .xtag:nth-child(4n+3){--tilt:-.5deg} .xtag:nth-child(4n){--tilt:1.3deg}
+.xtag:hover{transform:rotate(0deg) translateY(-4px)}
+.xtag .who{margin:0; font-size:.9rem; color:var(--ink-soft)}
+.xtag h3{font:700 1.2rem/1.12 var(--display); letter-spacing:-.02em; margin:0; text-wrap:balance}
+.xtag .meta{font-size:.82rem; color:var(--ink-soft)}
+.xtag button{justify-self:start; font-weight:700; color:var(--red); padding:4px 0; text-decoration:underline; text-underline-offset:3px}
+.note{padding-block:40px 56px; display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.4fr); gap:18px 48px; align-items:start}
+.note p{margin:0; font-size:1.05rem; max-width:40em}
+.note p + p{margin-top:12px; color:var(--ink-soft); font-size:.95rem}
+.top-link{font-weight:600; font-size:.95rem; color:var(--ink-soft); text-decoration:none}
+.top-link:hover{color:var(--red)}
+footer{border-top:1px solid var(--line); padding-top:22px; display:flex; flex-wrap:wrap; gap:10px 24px; justify-content:space-between; align-items:center; font-size:.85rem; color:var(--ink-soft)}
+footer .logo{font-size:1.3rem}
+
+/* Fenêtre kit */
+.overlay[hidden]{display:none}
+.overlay{position:fixed; inset:0; background:rgba(42,20,14,.55); display:grid; place-items:center; padding:16px; z-index:30}
+.dialog{background:var(--paper); border-radius:24px; max-width:540px; width:100%; max-height:calc(100% - 32px); overflow:auto; padding:28px; box-shadow:var(--shadow); animation:rise .28s ease both}
+@keyframes rise{from{transform:translateY(16px); opacity:.001}}
+.dialog h2{font:800 1.8rem/1.05 var(--display); letter-spacing:-.035em; margin:10px 0 10px; text-wrap:balance}
+.dialog p{margin:0 0 10px}
+.dialog ul{margin:14px 0; padding:0; list-style:none; display:grid; gap:8px}
+.dialog li{display:grid; grid-template-columns:18px minmax(0,1fr); gap:10px}
+.dialog li::before{content:""; width:10px; height:10px; margin-top:7px; border-radius:2px; background:var(--orange); transform:rotate(45deg)}
+.dialog .note{background:var(--bg); border-radius:14px; padding:12px 14px; font-size:.9rem; color:var(--ink-soft); margin:16px 0}
+.dialog .row{display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end}
+.btn-off{background:var(--red); color:var(--cream); opacity:.5; cursor:not-allowed}
+
+/* Révélation */
+.idea-wrap{position:relative; perspective:1400px}
+.cover{position:absolute; inset:0; z-index:3; background:var(--red); color:var(--cream); border-radius:26px; display:grid; place-content:center; justify-items:center; gap:6px; text-align:center; transform-origin:50% 0; box-shadow:var(--shadow)}
+.cover p{margin:0; font-weight:600; color:var(--cream-soft)}
+.cover strong{font:800 clamp(3.4rem,9vw,6.5rem)/.9 var(--display); letter-spacing:-.05em}
+.cover strong b{color:var(--orange)}
+.cover.open{animation:lift .75s cubic-bezier(.6,0,.35,1) forwards}
+@keyframes lift{to{transform:rotateX(88deg) translateY(-4%); opacity:0}}
+.res-head h2{font:800 clamp(1.8rem,4vw,2.8rem)/1 var(--display)}
+.res-actions{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+/* Ajuster */
+.adjust{margin-top:28px; padding:22px clamp(18px,3vw,28px); border-radius:18px; background:var(--bg-2); display:grid; gap:14px; scroll-margin-top:16px}
+.adjust h3{font:700 1.25rem/1.15 var(--display); margin:0}
+.adjust p{margin:-8px 0 0; color:var(--ink-soft); font-size:.93rem}
+.adj-row{display:grid; gap:7px}
+.adj-row .lab{font-weight:600; font-size:.9rem; color:var(--ink-soft)}
+.lpill{border:1.5px solid var(--line); background:var(--paper); color:var(--ink); border-radius:10px; padding:7px 12px; font-weight:600; font-size:.9rem; transition:border-color .15s, background .15s}
+.lpill:hover{border-color:var(--red)}
+.lpill[aria-pressed="true"]{background:var(--red); color:var(--cream); border-color:var(--red)}
+.toast{font-weight:600; color:var(--red); font-size:.93rem; min-height:1.4em}
+/* Matériel */
+.mat{display:grid; gap:8px; background:var(--bg); border-radius:14px; padding:14px 16px}
+.mat h4{margin:0; font:700 1rem/1.2 var(--display)}
+.mat ul{margin:0; padding:0; list-style:none; display:grid}
+.mat li{display:flex; justify-content:space-between; gap:12px; padding:7px 0; border-bottom:1px solid var(--line); font-size:.93rem}
+.mat li:last-child{border-bottom:0}
+.mat a{color:var(--red); font-weight:700; white-space:nowrap}
+/* Rappel */
+.remind{margin-top:22px; padding:22px clamp(18px,3vw,28px); border-radius:18px; background:var(--paper); border:1px solid var(--line); display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.2fr); gap:14px 28px; align-items:start}
+.remind h3{font:700 1.25rem/1.15 var(--display); margin:0 0 6px}
+.remind > div > p{margin:0; color:var(--ink-soft); font-size:.93rem}
+.remind form{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.3fr); gap:10px}
+.remind label{display:grid; gap:4px; font-weight:600; font-size:.88rem; color:var(--ink-soft); min-width:0}
+.remind input[type=date], .remind input[type=email]{font:inherit; color:var(--ink); background:var(--bg); border:1.5px solid var(--line); border-radius:10px; padding:9px 11px; min-width:0; width:100%}
+.remind .consent{grid-column:1 / -1; display:flex; gap:9px; align-items:flex-start; font-weight:500; font-size:.85rem}
+.remind .consent input{margin-top:3px; accent-color:var(--red)}
+.remind .row{grid-column:1 / -1; display:flex; gap:12px; align-items:center; flex-wrap:wrap}
+.remind .msg{font-size:.88rem; color:var(--ink-soft)}
+/* Aperçu du kit */
+.dialog.wide{max-width:880px; display:grid; grid-template-columns:minmax(0,300px) minmax(0,1fr); gap:26px; align-items:start}
+.consent-k{display:flex; gap:9px; align-items:flex-start; font-size:.88rem; margin-top:6px}
+.consent-k input{margin-top:4px; accent-color:var(--red)}
+.pv-lab{font-weight:600; font-size:.85rem; color:var(--ink-soft); margin:0 0 8px}
+.kit-page{aspect-ratio:210/297; max-width:100%; background:#FFFDF9; border:1px solid var(--line); border-radius:6px; box-shadow:0 14px 28px -18px rgba(42,20,14,.5); padding:22px 20px; display:flex; flex-direction:column; gap:9px; font-size:.72rem; line-height:1.45; overflow:hidden; color:var(--ink)}
+.kp-top{display:flex; justify-content:space-between; align-items:baseline; border-bottom:2px solid var(--red); padding-bottom:6px}
+.kp-top strong{font:800 1rem/1 var(--display); color:var(--red)} .kp-top strong b{color:var(--orange)}
+.kit-page h3{font:800 1.15rem/1.05 var(--display); letter-spacing:-.02em; margin:4px 0 0}
+.kp-for{margin:0; color:var(--ink-soft)}
+.kp-sec{font-weight:700; color:var(--red); margin-top:4px}
+.kit-page ol{margin:0; padding-left:16px; display:grid; gap:3px}
+.kit-page p{margin:0}
+.kp-foot{margin-top:auto; color:var(--ink-soft); text-align:right}
+/* Cookies */
+.cookies{position:fixed; left:16px; right:16px; bottom:calc(16px + env(safe-area-inset-bottom, 0px)); max-width:560px; z-index:35; background:var(--ink); color:var(--cream); border-radius:16px; padding:18px 20px; display:grid; gap:12px; box-shadow:0 18px 40px -20px rgba(0,0,0,.6)}
+.cookies p{margin:0; font-size:.92rem}
+.cookies a{color:var(--cream)}
+.cookies .row{display:flex; gap:10px; flex-wrap:wrap}
+.btn-ck{border:2px solid var(--cream); color:var(--cream); padding:10px 20px}
+.btn-ck:hover{background:var(--cream); color:var(--ink)}
+.foot-links{display:flex; gap:6px 18px; flex-wrap:wrap}
+.foot-links a, .foot-links button{color:var(--ink-soft); font-size:.85rem; text-decoration:underline; text-underline-offset:3px; padding:0}
+.foot-links a:hover, .foot-links button:hover{color:var(--red)}
+#confetti{position:fixed; inset:0; pointer-events:none; z-index:40; width:100%; height:100%}
+
+@media (max-width:960px){
+  .stage{grid-template-columns:minmax(0,1fr)}
+  .tags{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .remind{grid-template-columns:minmax(0,1fr)}
+  .dialog.wide{grid-template-columns:minmax(0,1fr)}
+  .dialog.wide .kit-page{max-width:280px}
+  .how ol{grid-template-columns:minmax(0,1fr)}
+  .note{grid-template-columns:minmax(0,1fr)}
+  .idea{grid-template-columns:minmax(0,1fr)}
+
+}
+@media (max-width:560px){
+  .tiles{grid-template-columns:minmax(0,1fr)}
+  .tags{grid-template-columns:minmax(0,1fr)}
+  .remind form{grid-template-columns:minmax(0,1fr)}
+
+  .top-nav{display:none}
+  .seg button{font-size:.82rem}
+  .idea-nav .spacer{display:none}
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none!important; transition:none!important}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <a class="logo" href="#quiz" aria-label="Tadam, accueil">Tadam<b>!</b></a>
+    <nav class="top-nav" aria-label="Navigation"><a class="top-link" href="#comment">Comment ça marche</a><a class="top-link" href="#vitrine">Voir des exemples</a></nav>
+  </header>
+
+  <section class="stage" id="quiz">
+    <div>
+      <h1>Le cadeau qui fait <em>tadam<b>!</b></em> en 5&nbsp;questions.</h1>
+      <p class="lead">Dis-nous qui, pour quand, ce qu'il ou elle aime, son style et l'effet que tu veux créer. On sort de notre sélection l'idée qui colle, à acheter, à personnaliser ou à créer toi-même.</p>
+      <p class="fine">Gratuit et sans compte. Tes réponses restent sur ton écran.</p>
+    </div>
+    <div class="quiz" id="panel" aria-live="polite"></div>
+  </section>
+
+  <section class="results" id="results" hidden></section>
+
+  <section class="how" id="comment">
+    <h2>Comment ça marche</h2>
+    <ol>
+      <li><span class="n">1</span><h3>Tu réponds à 5 questions</h3><p>Qui, pour quand, ses goûts, son style, et l'effet que tu veux créer avec ton budget. Une minute suffit.</p></li>
+      <li><span class="n">2</span><h3>On te révèle une idée forte</h3><p>Elle sort de notre sélection, avec la raison de ce choix. Elle ne te plaît pas ? Deux idées de secours attendent juste derrière.</p></li>
+      <li><span class="n">3</span><h3>Tu offres sans prise de tête</h3><p>Tu commandes en un clic, tu fais personnaliser, ou tu reçois un kit complet pour réaliser le cadeau toi-même.</p></li>
+    </ol>
+  </section>
+
+  <section class="vitrine" id="vitrine">
+    <div class="vitrine-head">
+      <div>
+        <h2>Quelques exemples</h2>
+        <p>Un profil, l'idée que Tadam lui trouve. Clique pour voir le résultat complet.</p>
+      </div>
+      <button class="link" id="shuffle">Montrer d'autres profils</button>
+    </div>
+    <div class="tags" id="tags"></div>
+  </section>
+
+  <section class="note" id="argent">
+    <h2>Comment Tadam gagne sa vie</h2>
+    <div>
+      <p>Le quiz est gratuit. Quand tu achètes via un de nos liens Amazon ou Etsy, le site marchand nous reverse une petite commission, et ton prix ne change pas. Les kits DIY sont payants, une seule fois, sans abonnement.</p>
+      <p>Chaque idée de la sélection est choisie et relue par l'équipe Tadam. Tes réponses au quiz servent seulement à trouver ton idée et ne sont pas enregistrées. Si tu demandes un rappel, on garde uniquement ton e-mail et la date, jusqu'à ta désinscription.</p>
+    </div>
+  </section>
+
+  <footer>
+    <a class="logo" href="#quiz">Tadam<b>!</b></a>
+    <nav class="foot-links" aria-label="Informations légales"><a href="mentions-legales.html">Mentions légales</a><a href="confidentialite.html">Confidentialité</a><a href="cgv.html">Conditions de vente des kits</a><button id="ck-open">Gérer les cookies</button></nav>
+    <span style="flex-basis:100%">En tant que Partenaire Amazon, Tadam réalise un bénéfice sur les achats remplissant les conditions requises.</span>
+  </footer>
+
+  <div class="cookies" id="cookies" role="region" aria-label="Cookies" hidden>
+    <p>Tadam aimerait mesurer sa fréquentation avec des cookies, seulement si tu es d'accord. Le quiz marche exactement pareil dans les deux cas. <a href="confidentialite.html#cookies">En savoir plus</a></p>
+    <div class="row"><button class="btn btn-ck" data-ck="refuse">Refuser</button><button class="btn btn-ck" data-ck="accept">Accepter</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay" hidden>
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dlg-title" id="dialog"></div>
+</div>
+<canvas id="confetti" hidden></canvas>
+
+<script>
+/* Identifiants partenaires à renseigner. Vide = lien sans suivi. */
+const AMAZON_TAG = "";
+const NB = " ";
+
+/* 1. Pour qui */
+const REL = [
+  {g:"Amis", items:[
+    {k:"bff", l:"Ma meilleure amie", pos:"ta meilleure amie", grp:["amis"]},
+    {k:"amie", l:"Une amie", pos:"ton amie", grp:["amis"]},
+    {k:"ami", l:"Un ami", pos:"ton ami", grp:["amis"]},
+    {k:"enfance", l:"Un ami d'enfance", pos:"ton ami d'enfance", grp:["amis"]}]},
+  {g:"Amour", items:[
+    {k:"couple", l:"Ma moitié", pos:"ta moitié", grp:["amour"]}]},
+  {g:"Famille", items:[
+    {k:"mere", l:"Ma mère", pos:"ta mère", grp:["famille","parents"]},
+    {k:"pere", l:"Mon père", pos:"ton père", grp:["famille","parents"]},
+    {k:"soeur", l:"Ma sœur", pos:"ta sœur", grp:["famille","fratrie"]},
+    {k:"frere", l:"Mon frère", pos:"ton frère", grp:["famille","fratrie"]},
+    {k:"gm", l:"Ma grand-mère", pos:"ta grand-mère", grp:["famille","grands"]},
+    {k:"gp", l:"Mon grand-père", pos:"ton grand-père", grp:["famille","grands"]},
+    {k:"bm", l:"Ma belle-mère", pos:"ta belle-mère", grp:["famille","parents"]},
+    {k:"bp", l:"Mon beau-père", pos:"ton beau-père", grp:["famille","parents"]}]},
+  {g:"Travail", items:[
+    {k:"colf", l:"Une collègue", pos:"ta collègue", grp:["travail"]},
+    {k:"colm", l:"Un collègue", pos:"ton collègue", grp:["travail"]},
+    {k:"boss", l:"Mon ou ma boss", pos:"ton ou ta boss", grp:["travail"]}]}
+];
+const RELS = REL.flatMap(g => g.items);
+const AGE = [{k:0,l:"Moins de 18 ans"},{k:1,l:"18 à 30 ans"},{k:2,l:"30 à 50 ans"},{k:3,l:"50 à 70 ans"},{k:4,l:"Plus de 70 ans"}];
+
+/* 2. Occasion et délai */
+const inGrp = (k, ...g) => RELS.find(r => r.k === k).grp.some(x => g.includes(x));
+const FETE = {mere:"mères", bm:"mères", pere:"pères", bp:"pères", gm:"grands-mères", gp:"grands-pères"};
+const OCC = [
+  {k:"anniv", l:() => "Son anniversaire", ph:() => "pour son anniversaire", on:() => true},
+  {k:"noel", l:() => "Noël", ph:() => "pour Noël", on:() => true},
+  {k:"valentin", l:() => "La Saint-Valentin", ph:() => "pour la Saint-Valentin", on:k => k === "couple"},
+  {k:"fete", l:k => "La fête des "+FETE[k], ph:k => "pour la fête des "+FETE[k], on:k => !!FETE[k]},
+  {k:"depart", l:() => "Un départ", ph:() => "pour son départ", on:k => inGrp(k,"travail")},
+  {k:"retraite", l:() => "Sa retraite", ph:() => "pour sa retraite", on:k => inGrp(k,"travail","parents","grands")},
+  {k:"cremaillere", l:() => "Une crémaillère", ph:() => "pour sa crémaillère", on:k => inGrp(k,"amis","fratrie","travail","parents")},
+  {k:"merci", l:() => "Pour dire merci", ph:() => "pour dire merci", on:() => true},
+  {k:"rien", l:() => "Juste comme ça", ph:() => "juste pour faire plaisir", on:() => true}
+];
+const DEL = [{k:1,l:"Dans moins de 3 jours"},{k:2,l:"Dans 1 à 2 semaines"},{k:3,l:"Dans plus de 2 semaines"}];
+
+/* 3. Goûts */
+const TH = [
+  {k:"cuisine",l:"Cuisine",ph:"la cuisine"},{k:"voyage",l:"Voyage",ph:"les voyages"},{k:"maison",l:"Déco et maison",ph:"la déco"},
+  {k:"sport",l:"Sport",ph:"le sport"},{k:"bienetre",l:"Bien-être",ph:"le bien-être"},{k:"jeux",l:"Jeux de société",ph:"les jeux de société"},
+  {k:"geek",l:"Geek et tech",ph:"la tech"},{k:"lecture",l:"Lecture",ph:"la lecture"},{k:"art",l:"Art et création",ph:"la création"},
+  {k:"musique",l:"Musique",ph:"la musique"},{k:"mode",l:"Mode et bijoux",ph:"la mode"},{k:"nature",l:"Nature et jardin",ph:"la nature"},
+  {k:"animaux",l:"Animaux",ph:"les animaux"},{k:"fete",l:"Apéro et fête",ph:"la fête"},{k:"cinema",l:"Ciné et séries",ph:"les films et les séries"}
+];
+
+/* 1 bis. Proximité : demandée seulement quand la relation ne la dit pas */
+const CLOSE = [{k:3,l:"Très bien"},{k:2,l:"Plutôt bien"},{k:1,l:"Pas tant que ça"}];
+const askClose = () => ["amie","ami","bm","bp","colf","colm","boss"].includes(A.rel);
+
+/* 4. Son style : une question scénario, plus concrète que des curseurs */
+const PROF = [
+  {k:"aventure", l:"Sortir découvrir un nouveau coin", s:"Balade, expo, week-end improvisé", ph:"qui aime sortir découvrir"},
+  {k:"cocon", l:"Rester bien au chaud", s:"Plaid, série, lecture, thé", ph:"qui adore son cocon"},
+  {k:"fete", l:"Voir du monde", s:"Brunch, apéro, soirée entre amis", ph:"qui aime voir du monde"},
+  {k:"souvenirs", l:"Retrouver ses proches", s:"Repas de famille, photos, souvenirs", ph:"qui tient aux moments partagés"},
+  {k:"pratique", l:"Avancer sur ses projets", s:"Bricoler, cuisiner, s'organiser", ph:"qui aime avancer sur ses projets"},
+  {k:"nsp", l:"Je ne sais pas trop", s:"On fera sans", ph:""}
+];
+const PET = [{k:"chien",l:"Un chien"},{k:"chat",l:"Un chat"},{k:"autre",l:"Un autre animal"},{k:"none",l:"Pas d'animal"}];
+const petOk = it => !it.pet || (A.th.includes("animaux") && A.pet && A.pet !== "none" && (it.pet.includes("any") || it.pet.includes(A.pet)));
+const AVOID = [{k:"alcool",l:"Pas d'alcool"},{k:"deco",l:"Pas de déco"},{k:"vetement",l:"Pas de vêtement"},{k:"gadget",l:"Pas de gadget"},{k:"tout",l:"A déjà tout"}];
+
+/* 5. L'effet tadam, puis budget et temps */
+const FX = [
+  {k:"rire", l:"Faire rire", s:"Un fou rire au moment de l'ouvrir", ph:"Pour un fou rire garanti."},
+  {k:"emotion", l:"Émouvoir", s:"Un cadeau qui touche en plein cœur", ph:"Pour un vrai moment d'émotion."},
+  {k:"epater", l:"Épater", s:"L'effet waouh, du jamais vu", ph:"Pour un effet waouh."},
+  {k:"utile", l:"Faire plaisir au quotidien", s:"Un cadeau qui servira vraiment", ph:"Pour un cadeau qui servira vraiment."}
+];
+const BUD = [{k:1,l:"Moins de 20"+NB+"€"},{k:2,l:"20 à 50"+NB+"€"},{k:3,l:"50 à 100"+NB+"€"},{k:4,l:"100 à 200"+NB+"€"},{k:5,l:"Plus de 200"+NB+"€"}];
+const TIME = [
+  {k:0,l:"Aucun",s:"Je veux juste l'acheter"},
+  {k:1,l:"1 à 2 heures",s:"Un petit coup de main"},
+  {k:2,l:"Un après-midi",s:"Je veux y mettre du cœur"},
+  {k:3,l:"Un week-end",s:"Je veux un cadeau mémorable"}
+];
+
+const KIT_FMT = {pdf:"Dossier PDF prêt à imprimer", canva:"Modèles Canva modifiables", both:"Dossier PDF et modèles Canva modifiables"};
+
+/* Base d'idées
+   t : buy (Amazon), perso (création personnalisée, Etsy), diy (à faire soi-même + kit)
+   th : thèmes ("all" = plaît quels que soient les goûts) ; b : palier budget 1 à 5 ; r : relations (clé, groupe ou "all")
+   o : occasions ; a : âges [min, max] ; p : personnalité [cocon/aventure, utile/symbole, classique/original] de -1 à 1
+   x : exclusions déclenchées ; tm : temps DIY 1 à 3 ; md : délai minimum 1 à 3 */
+const IDEAS = [
+  {t:"buy", n:"Un coffret d'épices du monde", th:["cuisine","voyage"], b:2, p:[0,-1,0], q:"coffret epices du monde", why:"Un tour du monde en petits pots, pour pimenter ses plats de la semaine."},
+  {t:"buy", n:"Une machine à pâtes", th:["cuisine"], b:3, a:[1,4], p:[-1,-1,0], q:"machine a pates manuelle", why:"Des tagliatelles fraîches faites maison, et un dimanche après-midi tout trouvé."},
+  {t:"buy", n:"Une cocotte en fonte", th:["cuisine","maison"], b:4, r:["parents","grands","amour"], a:[2,4], p:[-1,-1,-1], q:"cocotte fonte 24 cm", why:"Le cadeau qu'on garde trente ans, pour tous les plats mijotés de la famille."},
+  {t:"buy", n:"Un coffret de chocolats grands crus", th:["cuisine","all"], b:2, p:[-1,0,-1], q:"coffret chocolat grand cru degustation", why:"Une dégustation autour du monde du cacao, à partager ou pas."},
+  {t:"buy", n:"Un coffret de dégustation de thés", th:["bienetre","maison","lecture"], b:2, p:[-1,0,-1], q:"coffret the degustation", why:"Un thé différent pour chaque soirée plaid, du plus doux au plus corsé."},
+  {t:"buy", n:"Un kit à cocktails", th:["fete","cuisine"], b:2, r:["amis","amour","fratrie","travail"], a:[1,3], x:["alcool","gadget"], q:"kit cocktail bar", why:"Shaker, doseur et cuillère pour devenir le barman officiel des soirées."},
+  {t:"buy", n:"Un coffret de bières du monde", th:["fete","voyage"], b:2, r:["amis","fratrie","parents","travail"], a:[1,4], x:["alcool"], q:"coffret biere du monde", why:"Un tour du monde en dégustation, idéal pour un apéro entre amis."},
+  {t:"buy", n:"Une carte du monde à gratter", th:["voyage","maison"], b:1, p:[1,0,0], x:["deco"], q:"carte du monde a gratter", why:"On gratte chaque pays visité. Petite carte, grande envie de repartir."},
+  {t:"buy", n:"Des organisateurs de valise", th:["voyage"], b:1, p:[1,-1,-1], q:"organisateur valise set", why:"Des pochettes qui rangent tout, pour boucler la valise en dix minutes."},
+  {t:"buy", n:"Un appareil photo instantané", th:["voyage","art","fete"], b:3, a:[0,3], p:[1,1,1], x:["gadget"], q:"appareil photo instantane", why:"Des souvenirs qu'on tient dans la main, tout de suite après le clic."},
+  {t:"buy", n:"Un casque à réduction de bruit", th:["voyage","musique","geek"], b:4, a:[1,3], p:[0,-1,-1], x:["gadget"], q:"casque reduction de bruit bluetooth", why:"Le train, l'avion, l'open space : tout disparaît, sauf sa musique."},
+  {t:"buy", n:"Une liseuse", th:["lecture","voyage"], b:4, p:[-1,-1,-1], x:["gadget"], q:"liseuse", why:"Des centaines de livres dans une poche, pour lire au lit comme en vacances."},
+  {t:"buy", n:"Une lampe de lecture tour de cou", th:["lecture"], b:1, p:[-1,-1,0], q:"lampe lecture tour de cou", why:"Pour lire au lit sans réveiller personne, les mains libres."},
+  {t:"buy", n:"Un plaid XXL tout doux", th:["maison","bienetre"], b:2, p:[-1,0,-1], x:["deco"], q:"plaid polaire doux grand", why:"Le compagnon officiel des soirées canapé, assez grand pour deux."},
+  {t:"buy", n:"Un diffuseur d'huiles essentielles", th:["bienetre","maison"], b:2, p:[-1,-1,0], x:["gadget"], q:"diffuseur huiles essentielles", why:"Une ambiance zen en appuyant sur un bouton, lumière douce comprise."},
+  {t:"buy", n:"Une lampe coucher de soleil", th:["maison","art"], b:1, a:[0,2], p:[-1,0,1], x:["deco","gadget"], q:"lampe coucher de soleil", why:"Une lumière dorée sur le mur, pour des soirées et des photos de rêve."},
+  {t:"buy", n:"Un cadre photo numérique Wi-Fi", th:["maison","all"], b:3, r:["parents","grands"], a:[3,4], p:[-1,1,0], x:["gadget"], q:"cadre photo numerique wifi", why:"Tu envoies tes photos depuis ton téléphone, elles apparaissent chez lui ou chez elle."},
+  {t:"buy", n:"Un coffret soin et bien-être", th:["bienetre","mode"], b:2, p:[-1,-1,-1], q:"coffret soin bien etre", why:"De quoi s'offrir une vraie soirée spa à la maison."},
+  {t:"buy", n:"Un pistolet de massage", th:["sport","bienetre"], b:3, a:[1,3], p:[0,-1,0], x:["gadget"], q:"pistolet de massage", why:"Pour dénouer les muscles après la séance, ou après la journée."},
+  {t:"buy", n:"Un tapis de yoga épais", th:["sport","bienetre"], b:2, p:[-1,-1,-1], q:"tapis de yoga epais antiderapant", why:"Un tapis qui ne glisse pas, pour des séances plus confortables à la maison."},
+  {t:"buy", n:"Une montre connectée sport", th:["sport","geek"], b:5, a:[1,3], p:[1,-1,0], x:["gadget"], q:"montre connectee sport gps", why:"Pas, sommeil, sorties running : tout est suivi, au poignet."},
+  {t:"buy", n:"Une gourde isotherme", th:["sport","voyage","nature"], b:1, p:[1,-1,-1], q:"gourde isotherme inox", why:"Froide 24 heures, chaude 12 heures, et fini les bouteilles en plastique."},
+  {t:"buy", n:"Un jeu de société coopératif", th:["jeux"], b:2, r:["amis","famille","amour"], p:[-1,0,0], q:"jeu de societe cooperatif adulte", why:"On gagne ou on perd ensemble. Idéal pour les soirées sans dispute."},
+  {t:"buy", n:"Un escape game en boîte", th:["jeux"], b:2, p:[-1,0,1], q:"escape game boite", why:"Une heure d'énigmes à résoudre à plusieurs, sans sortir de chez soi."},
+  {t:"buy", n:"Un jeu de cartes pour soirées", th:["jeux","fete"], b:1, r:["amis","fratrie","travail"], a:[0,2], p:[0,0,1], q:"jeu de cartes soiree entre amis", why:"Le jeu qui lance les fous rires dès la première carte."},
+  {t:"buy", n:"Un blind test films et séries", th:["cinema","jeux"], b:1, a:[0,3], p:[-1,0,1], q:"jeu blind test cinema series", why:"Des répliques cultes et des musiques de films, pour prouver qui est le vrai cinéphile."},
+  {t:"buy", n:"Un set LEGO pour adultes", th:["jeux","maison","geek"], b:3, a:[1,3], p:[-1,0,1], x:["deco"], q:"lego adulte", why:"Deux heures de construction relaxante, puis une jolie pièce de déco."},
+  {t:"buy", n:"Une mini borne d'arcade rétro", th:["geek","jeux"], b:2, r:["amis","fratrie","amour","travail"], a:[1,3], p:[-1,0,1], x:["gadget"], q:"mini borne arcade retro", why:"Les jeux de son enfance, sur un coin de bureau."},
+  {t:"buy", n:"Une batterie externe compacte", th:["geek","voyage"], b:1, p:[1,-1,-1], x:["gadget"], q:"batterie externe compacte", why:"Le cadeau qu'on remercie à chaque fois que le téléphone passe sous 10 %."},
+  {t:"buy", n:"Un vidéoprojecteur portable", th:["cinema","geek"], b:4, a:[1,3], p:[-1,0,1], x:["gadget"], q:"videoprojecteur portable", why:"Des séances de ciné sur le mur du salon, ou dehors l'été."},
+  {t:"buy", n:"Une machine à popcorn", th:["cinema","fete"], b:2, a:[0,3], p:[-1,0,1], x:["gadget"], q:"machine a popcorn", why:"L'accessoire officiel des soirées films et séries."},
+  {t:"buy", n:"Un coffret d'aquarelle", th:["art"], b:2, p:[-1,0,0], q:"coffret aquarelle", why:"De belles couleurs et de bons pinceaux, pour se lancer ou progresser."},
+  {t:"buy", n:"Un carnet de croquis et des feutres", th:["art","voyage"], b:1, p:[1,0,0], q:"carnet croquis feutres", why:"Pour dessiner partout, dans le métro comme en terrasse."},
+  {t:"buy", n:"Une tablette graphique", th:["art","geek"], b:3, a:[0,2], x:["gadget"], q:"tablette graphique", why:"Le passage au dessin numérique, avec la sensation du vrai crayon."},
+  {t:"buy", n:"Une enceinte Bluetooth étanche", th:["musique","sport","fete"], b:2, p:[1,-1,0], x:["gadget"], q:"enceinte bluetooth etanche", why:"De la musique sous la douche, au parc ou au bord de la piscine."},
+  {t:"buy", n:"Une platine vinyle", th:["musique","maison"], b:4, a:[1,4], p:[-1,1,-1], x:["deco"], q:"platine vinyle bluetooth", why:"Le plaisir de poser le diamant sur le disque, et un bel objet dans le salon."},
+  {t:"buy", n:"Un micro karaoké sans fil", th:["musique","fete"], b:2, r:["amis","fratrie","amour"], a:[0,2], x:["gadget"], q:"micro karaoke bluetooth", why:"Pour transformer n'importe quel salon en scène, dès ce soir."},
+  {t:"buy", n:"Un bonnet et une écharpe en mérinos", th:["mode"], b:2, o:["noel","anniv","rien","merci"], p:[1,-1,-1], x:["vetement"], q:"bonnet echarpe laine merinos", why:"Doux, chaud et qui ne gratte pas. L'hiver n'a plus d'excuse."},
+  {t:"buy", n:"Un porte-cartes en cuir", th:["mode"], b:2, r:["all"], p:[0,-1,-1], q:"porte cartes cuir", why:"Fin, élégant, et fini le portefeuille qui déforme la poche."},
+  {t:"buy", n:"Un kit potager d'intérieur", th:["nature","cuisine"], b:2, p:[-1,0,1], q:"kit potager interieur herbes aromatiques", why:"Basilic, persil et ciboulette qui poussent sur le rebord de la fenêtre."},
+  {t:"buy", n:"Un jardin d'intérieur connecté", th:["nature","cuisine","geek"], b:4, p:[-1,-1,1], x:["gadget"], q:"jardin d'interieur connecte", why:"Des herbes fraîches toute l'année, même sans la main verte."},
+  {t:"buy", n:"Une plante de bureau increvable", th:["nature","all"], b:1, r:["travail","amis"], p:[-1,-1,0], x:["deco"], q:"plante zamioculcas", why:"Un peu de vert sur le bureau, qui survit même aux vacances d'août."},
+  {t:"buy", n:"Une mangeoire à oiseaux pour fenêtre", th:["nature","animaux"], b:1, r:["famille"], a:[3,4], p:[-1,1,0], q:"mangeoire oiseaux fenetre", why:"Des mésanges au petit-déjeuner, à quelques centimètres de la tasse."},
+  {t:"buy", n:"Une caméra pour animaux", pet:["chien","chat"], th:["animaux","geek"], b:3, a:[1,3], p:[-1,1,1], x:["gadget"], q:"camera animaux compagnie", why:"Pour voir ce que fait son chat ou son chien pendant la journée, et lui parler."},
+  {t:"buy", n:"Un mug isotherme de bureau", th:["all"], b:1, r:["travail"], p:[0,-1,-1], q:"mug isotherme bureau", why:"Le café reste chaud pendant toute la réunion. Même la longue."},
+  {t:"buy", n:"Le livre « Maman, raconte-moi »", th:["all"], b:1, r:["mere","bm"], a:[2,4], p:[-1,1,-1], q:"livre maman raconte moi", why:"Un livre à remplir de ses souvenirs, que tu garderas toute ta vie."},
+  {t:"buy", n:"Le livre « Papa, raconte-moi »", th:["all"], b:1, r:["pere","bp"], a:[2,4], p:[-1,1,-1], q:"livre papa raconte moi", why:"Ses souvenirs d'enfance, écrits de sa main, pour toute la famille."},
+  {t:"buy", n:"Le livre « Mamie, raconte-moi »", th:["all"], b:1, r:["gm"], a:[3,4], p:[-1,1,-1], q:"livre mamie raconte moi", why:"Sa vie racontée par elle, un trésor pour toutes les générations."},
+  {t:"buy", n:"Le livre « Papi, raconte-moi »", th:["all"], b:1, r:["gp"], a:[3,4], p:[-1,1,-1], q:"livre papi raconte moi", why:"Ses histoires de jeunesse enfin écrites, avant qu'elles ne se perdent."},
+  {t:"buy", n:"Un livre à remplir à deux", th:["all"], b:1, r:["amour","bff"], o:["valentin","anniv","rien"], p:[-1,1,0], q:"livre a remplir a deux", why:"Des questions à se poser, des pages à remplir ensemble, un souvenir à garder."},
+
+  {t:"perso", n:"Une carte du ciel personnalisée", th:["maison","all"], b:2, r:["amour","bff"], o:["valentin","anniv","rien"], p:[0,1,1], x:["deco"], q:"carte du ciel personnalisee", why:"Les étoiles exactes d'une nuit qui compte pour vous deux."},
+  {t:"perso", n:"Un bijou gravé", th:["mode","all"], b:2, r:["amour","bff","amie","soeur","mere","gm","bm"], p:[0,1,-1], q:"bijou grave personnalise", why:"Des initiales, une date ou un mot à vous, gravés sur un bijou qu'on porte tous les jours."},
+  {t:"perso", n:"Un portrait illustré", th:["art","maison","all"], b:2, p:[-1,1,1], x:["deco"], q:"portrait illustre personnalise", why:"Un illustrateur dessine votre photo préférée dans son style. Unique et encadrable."},
+  {t:"perso", n:"Le portrait de son animal", pet:["any"], th:["animaux","art"], b:2, p:[-1,1,1], x:["deco"], q:"portrait animal personnalise", why:"Son chien ou son chat en illustration, pour l'accrocher au-dessus du panier."},
+  {t:"perso", n:"Une planche à découper gravée", th:["cuisine","maison"], b:2, r:["parents","grands","amour","fratrie"], o:["all"], p:[-1,1,-1], q:"planche a decouper gravee personnalisee", why:"Le nom de la famille gravé dans le bois, sur la table de tous les apéros."},
+  {t:"perso", n:"L'affiche des lieux de votre histoire", th:["voyage","maison"], b:2, r:["amour","bff","famille","enfance"], p:[0,1,1], x:["deco"], q:"affiche coordonnees gps personnalisee", why:"Les coordonnées des endroits qui comptent, réunies sur une affiche élégante."},
+  {t:"perso", n:"Un puzzle de vos photos", th:["jeux","all"], b:2, r:["famille","amour","bff"], p:[-1,1,1], q:"puzzle photo personnalise", why:"Votre plus belle photo en 500 pièces, à reconstituer au coin du feu."},
+  {t:"perso", n:"Un tablier brodé à son nom", th:["cuisine"], b:1, p:[0,1,0], x:["vetement"], q:"tablier brode personnalise", why:"Pour le ou la chef de la maison, avec son nom brodé comme dans un grand restaurant."},
+  {t:"perso", n:"Un carnet de voyage en cuir gravé", th:["voyage","lecture"], b:2, p:[1,1,-1], q:"carnet voyage cuir grave", why:"Un carnet pour raconter ses prochains voyages, avec son nom sur la couverture."},
+  {t:"perso", n:"Un tampon ex-libris", th:["lecture"], b:2, p:[-1,1,1], q:"tampon ex libris personnalise", why:"« Bibliothèque de » suivi de son nom, pour marquer chaque livre de sa collection."},
+  {t:"perso", n:"L'affiche de votre chanson", th:["musique","maison"], b:2, r:["amour","bff"], p:[-1,1,1], x:["deco"], q:"affiche chanson personnalisee", why:"La chanson qui vous ressemble, mise en page comme une œuvre d'art."},
+  {t:"perso", n:"Un mug illustré à son image", th:["all"], b:1, r:["travail","amis","fratrie"], p:[0,0,1], q:"mug personnalise illustration", why:"Un mug qui lui ressemble, pour le café du lundi matin."},
+  {t:"perso", n:"Un livre d'or de départ", th:["all"], b:2, r:["travail"], o:["depart","retraite"], p:[0,1,0], q:"livre d'or depart collegue personnalise", why:"Toute l'équipe y écrit un mot. Le souvenir qu'on relit des années après."},
+
+  {t:"diy", n:"Un escape game maison sur mesure", th:["jeux","fete"], b:1, tm:2, o:["anniv","noel","rien","valentin"], a:[0,3], p:[0,0,1],
+    why:"Une heure d'énigmes construites sur vos souvenirs communs, avec le vrai cadeau au bout.",
+    steps:["Choisis un thème lié à vos souvenirs : un voyage, une série culte, une blague qui dure.","Cache 5 indices dans une pièce, chacun mène au suivant.","Termine par un coffre à cadenas qui contient le cadeau final."],
+    kit:{f:"both", price:"14,90", c:["Le scénario complet, écrit à partir de tes réponses","12 énigmes prêtes à imprimer, avec leurs solutions","Le plan de la pièce et l'ordre des indices","Les supports graphiques modifiables sur Canva","La liste du matériel, pour moins de 15 €","Une fiche de secours si ça coince"]}},
+  {t:"diy", n:"Un tableau peint rien que pour vous", th:["art","maison"], b:1, tm:2, p:[-1,1,1], x:["deco"],
+    why:"Une toile avec un lieu, une date ou une phrase qui n'a de sens que pour vous.",
+    steps:["Choisis le sujet : une ville, un paysage, une citation.","Décalque l'esquisse sur la toile au crayon.","Peins par aplats de couleur, du plus clair au plus foncé."],
+    kit:{f:"pdf", price:"9,90", c:["Une esquisse à décalquer, créée à partir de ton idée","La palette exacte des couleurs à utiliser","Le pas à pas illustré, niveau débutant","La liste du matériel et où le trouver"]}},
+  {t:"diy", n:"Un T-shirt personnalisé", th:["mode","art","fete"], b:1, tm:1, r:["amis","fratrie","amour"], a:[0,2], p:[0,0,1], x:["vetement"],
+    why:"Une private joke, un dessin ou une date : un T-shirt qu'on ne trouvera nulle part ailleurs.",
+    steps:["Trouve le message ou le dessin qui vous fait rire.","Imprime-le sur du papier transfert.","Transfère-le au fer à repasser sur un T-shirt en coton."],
+    kit:{f:"canva", price:"6,90", c:["3 visuels modifiables sur Canva, créés à partir de tes réponses","Le gabarit à la bonne taille","La technique pas à pas : transfert ou peinture textile","La liste du matériel"]}},
+  {t:"diy", n:"Le livre de recettes de la famille", th:["cuisine"], b:2, tm:3, r:["famille"], p:[-1,1,-1],
+    why:"Les plats de l'enfance réunis dans un vrai livre, pour qu'aucune recette ne se perde.",
+    steps:["Récupère 10 à 20 recettes auprès de la famille.","Ajoute une photo et un souvenir pour chaque plat.","Fais imprimer et relier le tout."],
+    kit:{f:"both", price:"14,90", c:["Une mise en page Canva prête à remplir","Le message à envoyer à la famille pour collecter les recettes","Les textes d'introduction de chaque chapitre","Les conseils pour l'impression et la reliure"]}},
+  {t:"diy", n:"Le bocal des 52 raisons", th:["all"], b:1, tm:1, r:["amour","bff","amie","soeur","mere","gm","fratrie"], o:["valentin","anniv","merci","rien","fete"], p:[-1,1,0],
+    why:"52 petits mots dans un bocal, un à ouvrir chaque semaine de l'année.",
+    steps:["Écris 52 raisons pour lesquelles tu tiens à cette personne.","Plie chaque papier et glisse-le dans un joli bocal.","Ajoute une étiquette : « Un mot à ouvrir chaque lundi »."],
+    kit:{f:"canva", price:"6,90", c:["52 phrases proposées à partir de tes réponses, à retoucher","Les papiers et étiquettes modifiables sur Canva","3 idées de pliage","Le modèle d'étiquette du bocal"]}},
+  {t:"diy", n:"Une chasse au trésor en ville", th:["voyage","sport","jeux"], b:1, tm:2, r:["amis","amour","fratrie","parents"], a:[0,3], o:["anniv","rien","valentin"], p:[1,1,1],
+    why:"Un parcours dans la ville, avec des étapes qui racontent votre histoire.",
+    steps:["Choisis 6 à 8 lieux qui comptent pour vous.","Prépare une énigme à chaque étape qui mène à la suivante.","Garde le cadeau pour la dernière étape."],
+    kit:{f:"pdf", price:"9,90", c:["Le parcours complet et son timing","8 énigmes rédigées pour tes lieux","Les cartes indices à imprimer","Un plan B en cas de pluie"]}},
+  {t:"diy", n:"Un scrapbook de vos souvenirs", th:["art","voyage","all"], b:1, tm:3, p:[-1,1,0],
+    why:"Vos meilleures photos, billets et petits mots réunis dans un album unique.",
+    steps:["Rassemble 30 photos et quelques souvenirs papier.","Organise-les par moments ou par années.","Colle, légende et décore page par page."],
+    kit:{f:"both", price:"9,90", c:["Le chemin de fer de l'album, page par page","Des idées de légendes écrites pour vous","Des gabarits et étiquettes modifiables sur Canva","La liste du matériel"]}},
+  {t:"diy", n:"Des bougies parfumées maison", th:["maison","bienetre"], b:1, tm:1, p:[-1,0,0], x:["deco"],
+    why:"Des bougies dans de jolis pots, avec un parfum choisi pour cette personne.",
+    steps:["Fais fondre la cire de soja au bain-marie.","Ajoute le parfum et place la mèche au centre du pot.","Laisse prendre 24 heures, puis habille le pot."],
+    kit:{f:"both", price:"6,90", c:["3 recettes de parfums selon ses goûts","Les étiquettes modifiables sur Canva","Le pas à pas avec les températures","La liste du matériel, pour moins de 20 €"]}},
+  {t:"diy", n:"Un coffret apéro fait maison", th:["cuisine","fete"], b:2, tm:2, p:[0,0,0],
+    why:"Sirop, tartinade et crackers maison, présentés dans une belle boîte.",
+    steps:["Prépare un sirop et une tartinade la veille.","Fais cuire des crackers maison le jour même.","Assemble le tout dans une boîte avec du papier de soie."],
+    kit:{f:"both", price:"9,90", c:["4 recettes simples et leur planning","Les étiquettes des bocaux sur Canva","Le montage du coffret","La liste de courses"]}},
+  {t:"diy", n:"Un terrarium en bocal", th:["nature","maison"], b:2, tm:1, p:[-1,0,1], x:["deco"],
+    why:"Un petit jardin sous verre qui ne demande presque aucun entretien.",
+    steps:["Dépose billes d'argile, charbon puis terreau dans le bocal.","Plante 2 ou 3 petites plantes et ajoute de la mousse.","Arrose légèrement et place à la lumière indirecte."],
+    kit:{f:"pdf", price:"6,90", c:["Le choix des plantes adaptées à son intérieur","Le montage étape par étape","La fiche d'entretien à offrir avec","La liste du matériel"]}},
+  {t:"diy", n:"Un chéquier de bons à échanger", th:["all"], b:1, tm:1, r:["amour","bff","famille","amie"], o:["valentin","anniv","noel","merci","fete","rien"], p:[0,1,1],
+    why:"Un petit-déj au lit, une soirée sans téléphone, un service rendu : des bons à utiliser quand il ou elle veut.",
+    steps:["Liste 15 à 20 petits cadeaux ou services à offrir.","Mets chaque bon en page sur une petite carte.","Relie le tout avec un ruban."],
+    kit:{f:"canva", price:"6,90", c:["20 bons proposés à partir de tes réponses","La mise en page modifiable sur Canva","La couverture du chéquier","Les conseils de reliure"]}},
+  {t:"diy", n:"Une playlist avec sa pochette de vinyle", th:["musique"], b:1, tm:1, p:[0,1,1],
+    why:"Les chansons de vos souvenirs, présentées comme un vrai album.",
+    steps:["Choisis 12 titres liés à des moments partagés.","Crée la playlist sur son application de musique.","Imprime une pochette carrée avec un QR code vers la playlist."],
+    kit:{f:"canva", price:"4,90", c:["La trame pour choisir les titres, moment par moment","La pochette modifiable sur Canva","Le QR code prêt à coller","Les textes du dos de pochette"]}},
+  {t:"diy", n:"Un herbier encadré", th:["nature","art"], b:1, tm:2, md:3, p:[-1,1,0], x:["deco"],
+    why:"Des fleurs cueillies ensemble, séchées et encadrées comme une œuvre.",
+    steps:["Cueille une dizaine de fleurs et de feuilles.","Presse-les deux semaines entre des livres lourds.","Dispose-les dans un cadre double verre."],
+    kit:{f:"pdf", price:"6,90", c:["Le choix des fleurs selon la saison","Les étiquettes calligraphiées à imprimer","La composition du cadre","La liste du matériel"]}},
+  {t:"diy", n:"Un calendrier de l'Avent fait main", th:["all"], b:2, tm:3, o:["noel"], p:[-1,1,1],
+    why:"24 petites surprises pensées pour cette personne, une par jour jusqu'à Noël.",
+    steps:["Liste 24 petites attentions : mots, douceurs, mini-objets.","Emballe chaque surprise et numérote-la.","Accroche-les sur une branche ou range-les dans une boîte."],
+    kit:{f:"both", price:"9,90", c:["24 idées de surprises selon ses goûts","Les étiquettes numérotées sur Canva","Le planning d'achats","3 idées de présentation"]}},
+  {t:"diy", n:"Un mug peint à la main", th:["cuisine","art"], b:1, tm:1, p:[-1,1,1],
+    why:"Son café du matin dans un mug unique, avec un dessin ou un mot de toi.",
+    steps:["Dessine ton motif au feutre pour céramique.","Laisse sécher 24 heures.","Cuis le mug au four pour fixer le dessin."],
+    kit:{f:"pdf", price:"4,90", c:["3 motifs à décalquer, créés à partir de tes réponses","Le pas à pas et la cuisson","Le petit mot à glisser avec le mug","La liste du matériel"]}},
+  {t:"diy", n:"Le quiz « Qui me connaît le mieux »", th:["jeux","fete","all"], b:1, tm:2, r:["amis","famille","travail"], o:["anniv","noel","rien","depart","retraite"], p:[0,0,1],
+    why:"Un jeu sur la vie de la personne fêtée, pour faire rire tout le monde à la soirée.",
+    steps:["Écris 30 questions sur sa vie, ses goûts, ses anecdotes.","Imprime les cartes et prépare une feuille de score.","Lance la partie pendant la soirée, avec un petit lot à gagner."],
+    kit:{f:"both", price:"9,90", c:["30 questions construites à partir de tes réponses","Les cartes modifiables sur Canva","Les règles du jeu","La feuille de score"]}},
+  {t:"diy", n:"L'album de départ de toute l'équipe", th:["all"], b:1, tm:2, r:["travail"], o:["depart","retraite"], p:[0,1,0],
+    why:"Chaque collègue ajoute une photo et un mot. Le souvenir qu'il ou elle gardera de vous tous.",
+    steps:["Envoie le lien de collecte à l'équipe une semaine avant.","Rassemble photos et messages dans le modèle.","Fais imprimer l'album ou offre-le en version numérique."],
+    kit:{f:"canva", price:"9,90", c:["Le modèle d'album modifiable sur Canva","Le message de collecte à envoyer à l'équipe","Les idées de rubriques et de questions","Les conseils pour l'impression"]}},
+  {t:"diy", n:"Une soirée ciné à la maison", th:["cinema","fete"], b:1, tm:1, r:["amour","amis","famille"], o:["rien","anniv","valentin","noel"], p:[-1,0,1],
+    why:"Des billets, un programme et du popcorn : un vrai cinéma dans le salon.",
+    steps:["Choisis le film selon ses goûts.","Imprime les billets et le programme de la séance.","Prépare le popcorn et installe le salon comme une salle."],
+    kit:{f:"canva", price:"6,90", c:["3 films proposés selon ses goûts","Les billets et le programme sur Canva","2 recettes de popcorn","L'installation du salon pas à pas"]}},
+  {t:"diy", n:"Une box spa maison", th:["bienetre"], b:1, tm:1, p:[-1,0,-1],
+    why:"Gommage, sels de bain et masque faits maison, dans une jolie boîte à ouvrir un soir de calme.",
+    steps:["Prépare un gommage au sucre et des sels de bain.","Verse-les dans de petits pots.","Assemble la box avec une carte « Soirée détente »."],
+    kit:{f:"both", price:"6,90", c:["4 recettes de soins maison","Les étiquettes des pots sur Canva","La carte « mode d'emploi de la soirée »","La liste du matériel"]}},
+  {t:"diy", n:"Un rendez-vous à l'aveugle avec un livre", th:["lecture"], b:2, tm:1, p:[-1,0,1],
+    why:"Des livres emballés, avec seulement quelques indices sur le papier. Le choix se fait à l'instinct.",
+    steps:["Choisis 3 livres selon ses goûts.","Emballe-les dans du papier kraft.","Écris 3 indices sur chaque paquet, sans le titre."],
+    kit:{f:"canva", price:"4,90", c:["Une sélection de livres selon ses goûts","Les étiquettes à indices sur Canva","Les idées d'emballage","Le petit mot d'accompagnement"]}},
+  {t:"diy", n:"Des friandises maison pour son animal", pet:["chien"], th:["animaux"], b:1, tm:1, p:[-1,1,1],
+    why:"Des biscuits maison pour son chien, dans un bocal à son nom.",
+    steps:["Prépare la pâte avec des ingrédients sans danger pour les animaux.","Découpe à l'emporte-pièce et fais cuire.","Range-les dans un bocal étiqueté."],
+    kit:{f:"both", price:"4,90", c:["3 recettes validées pour chiens","L'étiquette du bocal sur Canva","La liste des ingrédients à éviter","La conservation"]}},
+
+  /* Lot 1 (brouillon, à relire) : budgets de plus de 100 €, animaux, musique, ciné, nature, sport */
+  {t:"buy", n:"Un distributeur de croquettes connecté", pet:["chien","chat"], th:["animaux","geek"], b:3, a:[1,3], p:[0,-1,1], x:["gadget"], q:"distributeur croquettes connecte", why:"Les repas de son chat ou de son chien servis à l'heure, même quand personne n'est à la maison."},
+  {t:"buy", n:"Une fontaine à eau pour chat", pet:["chat"], th:["animaux"], b:2, p:[-1,-1,0], q:"fontaine a eau chat", why:"Une eau fraîche qui coule en continu, pour les chats qui boudent leur gamelle."},
+  {t:"buy", n:"Une caméra qui lance des friandises", pet:["chien","chat"], th:["animaux","geek"], b:4, a:[1,3], p:[-1,1,1], x:["gadget"], q:"camera distributeur friandises chien", why:"Pour voir son animal depuis le bureau, lui parler et lui envoyer une récompense."},
+  {t:"buy", n:"Un traceur GPS pour chien ou chat", pet:["chien","chat"], th:["animaux","nature"], b:3, p:[1,-1,0], x:["gadget"], q:"traceur gps chien chat", why:"Pour retrouver son animal en quelques secondes, et partir en balade l'esprit tranquille."},
+  {t:"buy", n:"Un arbre à chat design", pet:["chat"], th:["animaux","maison"], b:4, p:[-1,-1,1], x:["deco"], q:"arbre a chat design bois", why:"Un vrai terrain de jeu pour le chat, qui ne jure pas avec la déco du salon."},
+  {t:"buy", n:"Un jeu d'intelligence pour chien", pet:["chien"], th:["animaux","jeux"], b:1, p:[-1,0,1], q:"jeu intelligence chien", why:"Des friandises à trouver en réfléchissant, pour occuper son chien les jours de pluie."},
+  {t:"buy", n:"Un kit d'empreinte de patte", pet:["chien","chat"], th:["animaux","maison"], b:1, p:[-1,1,0], x:["deco"], q:"kit empreinte patte chien chat", why:"L'empreinte de son compagnon moulée dans l'argile, un souvenir qui dure."},
+  {t:"perso", n:"Un coussin à l'image de son animal", pet:["any"], th:["animaux","maison"], b:2, p:[-1,1,1], x:["deco"], q:"coussin photo animal personnalise", why:"Son chien ou son chat imprimé en forme découpée, pour un canapé qui fait sourire."},
+  {t:"perso", n:"Une figurine de son animal sculptée à la main", pet:["any"], th:["animaux","art"], b:4, p:[-1,1,1], x:["deco"], q:"figurine animal personnalisee sculptee main", why:"Un artisan reproduit son animal d'après photo, dans les moindres détails."},
+  {t:"diy", n:"L'album photo de son animal", pet:["any"], th:["animaux","art"], b:2, tm:2, p:[-1,1,0],
+    why:"Toute la vie de son compagnon en photos, de la première gamelle aux siestes au soleil.",
+    steps:["Rassemble 40 photos de l'animal, par période de sa vie.","Place-les dans le modèle d'album et ajoute une légende à chacune.","Fais imprimer l'album en ligne ou en boutique photo."],
+    kit:{f:"canva", price:"9,90", c:["Le modèle d'album de 24 pages modifiable sur Canva","Des idées de légendes et de titres de chapitres","Le chemin de fer pour classer les photos","Les conseils pour choisir l'impression"]}},
+
+  {t:"buy", n:"Une paire d'enceintes bibliothèque", th:["musique","maison"], b:5, a:[1,4], p:[-1,-1,-1], x:["gadget"], q:"enceintes bibliotheque actives bluetooth", why:"Un vrai son de salon pour redécouvrir ses albums préférés."},
+  {t:"buy", n:"Une guitare folk pour débuter", th:["musique","art"], b:4, a:[0,3], p:[0,1,0], q:"guitare folk debutant pack", why:"Le pack complet pour enfin apprendre les accords dont il ou elle parle depuis des années."},
+  {t:"buy", n:"Un piano numérique", th:["musique","art"], b:5, a:[0,4], p:[-1,1,-1], q:"piano numerique 88 touches", why:"88 touches, un casque pour jouer la nuit, et plus aucune excuse pour ne pas s'y mettre."},
+  {t:"buy", n:"Un ukulélé et sa housse", th:["musique","voyage"], b:2, a:[0,3], p:[1,0,1], q:"ukulele soprano housse", why:"L'instrument le plus facile à apprendre, et assez petit pour partir en vacances."},
+  {t:"buy", n:"Un casque audio sans fil", th:["musique","geek"], b:3, a:[0,3], p:[0,-1,0], x:["gadget"], q:"casque audio sans fil", why:"Sa musique partout, sans fil qui s'emmêle au fond du sac."},
+  {t:"buy", n:"Une kalimba", th:["musique","bienetre"], b:1, p:[-1,0,1], q:"kalimba 17 touches", why:"Un petit piano à pouces au son doux, qu'on apprend en une soirée."},
+  {t:"buy", n:"Une enceinte connectée multi-pièces", th:["musique","maison","geek"], b:4, a:[1,4], p:[-1,-1,0], x:["gadget"], q:"enceinte connectee wifi multiroom", why:"La même musique dans toute la maison, lancée à la voix ou depuis le téléphone."},
+  {t:"buy", n:"Un contrôleur DJ pour débuter", th:["musique","fete"], b:4, a:[0,2], p:[1,0,1], x:["gadget"], q:"controleur dj debutant", why:"Pour passer de la playlist au vrai mix, et animer les prochaines soirées."},
+  {t:"perso", n:"Des médiators gravés", th:["musique"], b:1, a:[0,3], p:[0,1,1], q:"mediator grave personnalise", why:"Son nom ou votre private joke gravés sur ses médiators de guitare."},
+  {t:"diy", n:"Un concert privé à la maison", th:["musique","fete"], b:1, tm:2, r:["amis","amour","famille"], o:["anniv","rien","valentin","noel"], p:[-1,1,1],
+    why:"Ses chansons préférées, une scène improvisée et des billets à son nom : un vrai concert rien que pour lui ou elle.",
+    steps:["Choisis 8 titres qu'il ou elle adore et prépare la playlist ou les musiciens.","Installe une petite scène avec des lumières dans le salon.","Remets-lui son billet d'entrée le jour J."],
+    kit:{f:"both", price:"9,90", c:["Le déroulé de la soirée, minute par minute","Les billets et l'affiche du concert sur Canva","Les idées de mise en scène et de lumières","La liste du matériel"]}},
+
+  {t:"buy", n:"Un vidéoprojecteur 4K", th:["cinema","geek"], b:5, a:[1,4], p:[-1,-1,-1], x:["gadget"], q:"videoprojecteur 4k", why:"Un écran géant dans le salon, pour des soirées films comme au cinéma."},
+  {t:"buy", n:"L'intégrale d'une série culte", th:["cinema"], b:3, p:[-1,1,-1], q:"coffret integrale serie blu-ray", why:"Toutes les saisons de sa série préférée, à revoir sans pub ni abonnement."},
+  {t:"buy", n:"Un beau livre sur l'histoire du cinéma", th:["cinema","lecture"], b:2, a:[1,4], p:[-1,0,-1], q:"livre histoire du cinema", why:"Un siècle de films racontés en images, à feuilleter entre deux séances."},
+  {t:"buy", n:"Une barre de son", th:["cinema","musique"], b:4, a:[1,4], p:[-1,-1,-1], x:["gadget"], q:"barre de son tv", why:"Des dialogues enfin clairs et des explosions qui font trembler le canapé."},
+  {t:"perso", n:"Une affiche de film avec vos visages", th:["cinema","art"], b:2, r:["amour","amis","fratrie"], p:[0,1,1], x:["deco"], q:"affiche film personnalisee visage", why:"Vous deux en héros de son film culte, en affiche prête à encadrer."},
+  {t:"diy", n:"Un quiz ciné sur mesure", th:["cinema","jeux"], b:1, tm:1, p:[-1,0,1],
+    why:"Des questions sur ses films et séries préférés, pour une soirée où il ou elle a enfin l'avantage.",
+    steps:["Liste ses 10 films ou séries préférés.","Prépare 3 questions par film : réplique, acteur, scène.","Imprime les cartes et joue en équipe."],
+    kit:{f:"both", price:"6,90", c:["30 questions construites à partir de ses films préférés","Les cartes modifiables sur Canva","Les règles et la feuille de score","Des idées de gages et de lots"]}},
+
+  {t:"buy", n:"Une station météo connectée", th:["nature","geek"], b:3, a:[2,4], p:[0,-1,0], x:["gadget"], q:"station meteo connectee", why:"Température, pluie et vent au jardin, suivis depuis le téléphone."},
+  {t:"buy", n:"Des jumelles d'observation", th:["nature","voyage","animaux"], b:3, p:[1,-1,-1], q:"jumelles observation 10x42", why:"Pour observer les oiseaux, les montagnes ou les baleines lors du prochain voyage."},
+  {t:"buy", n:"Un barbecue kamado", th:["cuisine","nature","fete"], b:5, r:["parents","amour","fratrie","amis"], a:[2,4], p:[0,-1,0], q:"barbecue kamado", why:"Le barbecue des passionnés, qui grille, fume et cuit au four."},
+  {t:"buy", n:"Un hamac avec support", th:["nature","bienetre"], b:4, p:[-1,0,0], q:"hamac avec support", why:"Des siestes à l'ombre tout l'été, même sans arbre dans le jardin."},
+  {t:"buy", n:"Un nichoir avec caméra", th:["nature","animaux","geek"], b:4, a:[2,4], p:[-1,1,1], x:["gadget"], q:"nichoir camera", why:"Suivre en direct la nichée de mésanges du jardin, depuis son canapé."},
+  {t:"buy", n:"Des graines de fleurs pour les abeilles", th:["nature"], b:1, p:[0,0,0], q:"graines fleurs melliferes", why:"Un carré de fleurs qui attire abeilles et papillons dès le printemps."},
+  {t:"buy", n:"Un bonsaï d'intérieur", th:["nature","maison"], b:2, p:[-1,0,1], x:["deco"], q:"bonsai interieur", why:"Un petit arbre à soigner, qui apprend la patience et embellit une étagère."},
+  {t:"diy", n:"Une jardinière d'aromates en palette", th:["nature","cuisine"], b:2, tm:2, p:[-1,-1,1],
+    why:"Une jardinière en bois de récup, déjà plantée de basilic, thym et romarin.",
+    steps:["Récupère une palette et démonte 6 planches.","Assemble le bac, perce le fond et pose une bâche.","Remplis de terreau et plante les aromates."],
+    kit:{f:"pdf", price:"9,90", c:["Les plans cotés de la jardinière","La liste des outils et du matériel","Le choix des aromates selon l'exposition","La fiche d'entretien à offrir avec"]}},
+
+  {t:"buy", n:"Un rameur pliable", th:["sport"], b:5, a:[1,3], p:[-1,-1,0], q:"rameur pliable", why:"Un entraînement complet à la maison, rangé derrière une porte après la séance."},
+  {t:"buy", n:"Un sac à dos de randonnée", th:["sport","voyage","nature"], b:3, a:[0,3], p:[1,-1,-1], q:"sac a dos randonnee 30l", why:"Léger, confortable et plein de poches, pour les prochaines balades en montagne."},
+  {t:"buy", n:"Des écouteurs sport sans fil", th:["sport","musique"], b:3, a:[0,3], p:[1,-1,0], x:["gadget"], q:"ecouteurs sport sans fil", why:"Des écouteurs qui tiennent pendant le running et résistent à la transpiration."},
+  {t:"buy", n:"Un vélo d'appartement", th:["sport","bienetre"], b:5, a:[1,4], p:[-1,-1,-1], q:"velo d'appartement", why:"Pédaler devant sa série préférée, sans craindre la pluie."},
+  {t:"buy", n:"Des haltères réglables", th:["sport"], b:4, a:[1,3], p:[-1,-1,0], q:"halteres reglables", why:"Toute une salle de muscu dans deux haltères qui tiennent dans un placard."},
+  {t:"diy", n:"Un programme d'entraînement sur mesure", th:["sport","bienetre"], b:1, tm:1, p:[1,-1,0],
+    why:"8 semaines d'entraînement pensées pour son niveau, dans un joli carnet à cocher.",
+    steps:["Note son niveau, son sport et son objectif.","Choisis 3 séances par semaine dans le programme.","Imprime le carnet et offre-le avec une gourde ou une serviette."],
+    kit:{f:"both", price:"6,90", c:["Un programme de 8 semaines adapté à son niveau","Le carnet de suivi modifiable sur Canva","Les fiches d'exercices illustrées","Les conseils d'échauffement et de récupération"]}},
+
+  {t:"buy", n:"Une machine à café avec broyeur", th:["cuisine","maison"], b:5, r:["parents","amour","fratrie","grands"], a:[1,4], p:[-1,-1,-1], x:["gadget"], q:"machine a cafe broyeur grain", why:"Un espresso de barista chaque matin, avec du grain moulu à la minute."},
+  {t:"buy", n:"Un robot pâtissier", th:["cuisine"], b:5, a:[1,4], p:[-1,-1,-1], q:"robot patissier", why:"Brioches, meringues et gâteaux d'anniversaire sans avoir mal au bras."},
+  {t:"buy", n:"Une plancha électrique", th:["cuisine","fete"], b:3, p:[0,-1,0], q:"plancha electrique", why:"Des apéros grillés sur la table, entre amis ou en famille."},
+  {t:"buy", n:"Une valise cabine rigide", th:["voyage"], b:4, a:[1,4], p:[1,-1,-1], q:"valise cabine rigide", why:"Légère, solide et aux normes des compagnies, pour les prochaines escapades."},
+  {t:"buy", n:"Un sac de week-end en cuir", th:["voyage","mode"], b:4, a:[1,4], p:[1,0,-1], q:"sac week end cuir", why:"Le sac qui fait tout de suite voyage chic, et qui vieillit bien."},
+  {t:"buy", n:"Une lampe de luminothérapie", th:["bienetre"], b:3, a:[1,4], p:[-1,-1,0], q:"lampe luminotherapie", why:"De la lumière du jour en hiver, pour garder la forme quand les jours raccourcissent."},
+  {t:"buy", n:"Un coussin de massage shiatsu", th:["bienetre"], b:3, a:[1,4], r:["parents","grands","amour","travail"], p:[-1,-1,-1], x:["gadget"], q:"coussin massage shiatsu", why:"Un massage du dos ou de la nuque sur le canapé, à la demande."},
+  {t:"perso", n:"Une montre gravée", th:["mode"], b:4, r:["amour","parents","fratrie"], a:[1,4], p:[0,1,-1], q:"montre gravee personnalisee", why:"Une date ou un mot gravé au dos, pour un cadeau qu'on porte tous les jours."},
+  {t:"perso", n:"Un bijou en or gravé", th:["mode"], b:5, r:["amour","mere","gm","bff"], a:[1,4], p:[0,1,-1], q:"bijou or grave personnalise", why:"Un bijou précieux marqué d'une initiale ou d'une date qui compte."},
+  {t:"buy", n:"Une console portable rétro", th:["geek","jeux"], b:3, a:[0,3], p:[-1,0,1], x:["gadget"], q:"console portable retro", why:"Des centaines de jeux d'enfance dans la poche, pour les trajets et les soirées."},
+  {t:"buy", n:"Une imprimante photo portable", th:["art","geek","voyage"], b:3, a:[0,3], p:[0,1,1], x:["gadget"], q:"imprimante photo portable", why:"Les photos du téléphone imprimées en une minute, pour les carnets et les murs."},
+  {t:"buy", n:"Un appareil photo hybride", th:["art","voyage"], b:5, a:[1,4], p:[1,0,-1], x:["gadget"], q:"appareil photo hybride kit objectif", why:"Pour passer des photos de téléphone aux vraies belles photos de voyage."},
+  {t:"buy", n:"Une tablette simple pour senior", th:["geek","all"], b:4, r:["grands","parents"], a:[3,4], p:[-1,1,0], x:["gadget"], q:"tablette senior simple", why:"Des appels vidéo avec les petits-enfants en un seul geste, sans menus compliqués."},
+  {t:"buy", n:"Un stylo plume haut de gamme", th:["lecture","mode"], b:4, r:["travail","parents","grands"], a:[2,4], p:[0,0,-1], o:["depart","retraite","anniv","noel","merci"], q:"stylo plume luxe", why:"Un bel objet d'écriture, le genre de cadeau qu'on garde toute une carrière."},
+
+  /* Amoureux des animaux, sans animal à la maison */
+  {t:"buy", n:"Un puzzle animalier de 1 000 pièces", th:["animaux","jeux"], b:1, p:[-1,0,0], q:"puzzle 1000 pieces animaux", why:"Des heures de calme autour d'une scène animalière, à encadrer une fois terminée."},
+  {t:"buy", n:"Un guide des oiseaux", th:["animaux","nature","lecture"], b:1, a:[1,4], p:[1,-1,-1], q:"guide des oiseaux de france", why:"Pour mettre enfin un nom sur chaque oiseau croisé en balade ou au jardin."},
+  {t:"buy", n:"Un beau livre de photos animalières", th:["animaux","lecture","maison"], b:2, a:[1,4], p:[-1,1,-1], q:"beau livre photographie animaliere", why:"Les plus belles photos du monde sauvage, à feuilleter au salon."},
+  {t:"buy", n:"Un bijou en forme d'animal", th:["animaux","mode"], b:2, p:[0,1,0], q:"collier pendentif animal argent", why:"Son animal préféré porté en pendentif, discret et plein de sens."},
+  {t:"buy", n:"Une affiche animalière illustrée", th:["animaux","maison","art"], b:2, p:[-1,0,1], x:["deco"], q:"affiche illustration animaux", why:"Une belle illustration d'animal pour habiller un mur, sans les poils sur le canapé."},
+  {t:"buy", n:"Un jeu de société sur les oiseaux", th:["animaux","jeux","nature"], b:3, a:[1,4], p:[-1,0,1], q:"jeu de societe oiseaux", why:"Un jeu de stratégie magnifique où l'on attire des oiseaux dans sa réserve naturelle."},
+  {t:"buy", n:"Un appareil photo bridge pour la photo animalière", th:["animaux","art","nature"], b:5, a:[1,4], p:[1,0,-1], x:["gadget"], q:"appareil photo bridge zoom", why:"Un zoom puissant pour photographier oiseaux et animaux sauvages sans les déranger."},
+  {t:"diy", n:"Un hôtel à insectes fait main", th:["animaux","nature"], b:1, tm:2, p:[-1,1,1],
+    why:"Un abri en bois pour abeilles et coccinelles, à installer au jardin ou sur le balcon.",
+    steps:["Assemble un petit cadre en bois avec un toit.","Remplis les cases de bambous, pommes de pin et bûchettes percées.","Fixe-le au soleil, à l'abri du vent."],
+    kit:{f:"pdf", price:"6,90", c:["Les plans cotés de l'hôtel","Les matériaux à récupérer et où les trouver","Le guide des insectes qui vont s'y installer","La fiche d'installation à offrir avec"]}},
+  /* Lot 2 (brouillon, à relire) : budgets de plus de 50 €, lecture, mode, ciné, fête, aventure, cuisine sans alcool */
+  {t:"buy", n:"Un coffret collector d'une saga", th:["lecture","cinema"], b:3, p:[-1,1,-1], q:"coffret collector saga livres", why:"Sa saga préférée dans une belle édition collector, à ranger fièrement dans la bibliothèque."},
+  {t:"buy", n:"Une lampe de lecture design", th:["lecture","maison"], b:3, a:[1,4], p:[-1,-1,0], x:["deco"], q:"lampe de lecture design", why:"Une belle lumière pour lire sans se fatiguer les yeux, qui décore aussi le salon."},
+  {t:"buy", n:"Un fauteuil de lecture", th:["lecture","maison"], b:5, r:["parents","grands","amour"], a:[2,4], p:[-1,-1,-1], x:["deco"], q:"fauteuil lecture confortable", why:"Le coin lecture dont il ou elle rêve, avec le fauteuil où on ne voit plus le temps passer."},
+  {t:"buy", n:"Un beau livre sur un pays à visiter", th:["lecture","voyage"], b:2, a:[1,4], p:[1,0,-1], q:"beau livre voyage pays", why:"Pour préparer le prochain voyage, ou rêver du suivant, en images."},
+  {t:"buy", n:"Un carnet de lecture à remplir", th:["lecture"], b:1, p:[-1,-1,0], q:"carnet de lecture a remplir", why:"Pour garder une trace de chaque livre lu, avec ses notes et ses citations préférées."},
+  {t:"perso", n:"Un livre dont il ou elle est le héros", th:["lecture","all"], b:2, r:["amour","amis","fratrie","famille"], p:[-1,1,1], fx:["rire","emotion"], q:"livre personnalise heros adulte", why:"Une vraie histoire imprimée avec son prénom, ses amis et ses manies en personnages."},
+  {t:"perso", n:"Son roman préféré relié en cuir", th:["lecture"], b:4, a:[1,4], p:[-1,1,-1], q:"reliure cuir livre personnalise", why:"Le livre de sa vie dans une reliure en cuir gravée à son nom, pour toujours."},
+  {t:"buy", n:"Un sac banane en cuir", th:["mode","voyage"], b:3, a:[0,3], p:[1,-1,0], q:"sac banane cuir", why:"Mains libres et style assuré, en ville comme en voyage."},
+  {t:"buy", n:"Des lunettes de soleil polarisées", th:["mode","voyage","sport"], b:3, a:[0,3], p:[1,-1,0], q:"lunettes de soleil polarisees", why:"Une belle paire qui protège vraiment les yeux, pour la plage comme pour la montagne."},
+  {t:"buy", n:"Un foulard en soie", th:["mode"], b:3, r:["mere","gm","bm","amie","bff","soeur","amour","colf"], a:[1,4], p:[0,1,-1], q:"foulard soie", why:"Un carré de soie qui habille une tenue en un geste, et qui ne se démode jamais."},
+  {t:"buy", n:"Un portefeuille en cuir haut de gamme", th:["mode"], b:4, a:[1,4], p:[0,-1,-1], q:"portefeuille cuir homme femme", why:"Un cuir qui se patine avec les années, le genre d'accessoire qu'on garde longtemps."},
+  {t:"perso", n:"Une gourmette gravée", th:["mode","all"], b:3, r:["amour","bff","famille"], p:[0,1,-1], q:"gourmette gravee personnalisee", why:"Un prénom, une date ou un mot à vous deux, gravé sur un bijou qu'on ne quitte plus."},
+  {t:"buy", n:"Une montre automatique", th:["mode"], b:5, r:["amour","parents","fratrie"], a:[1,4], p:[0,1,-1], q:"montre automatique", why:"Une montre qui fonctionne sans pile, au rythme de son poignet. Un cadeau pour la vie."},
+  {t:"buy", n:"Une trousse de toilette en cuir", th:["mode","voyage"], b:2, a:[1,4], p:[1,-1,-1], q:"trousse de toilette cuir", why:"Élégante et solide, pour tous les week-ends à venir."},
+  {t:"buy", n:"Un coffret de films cultes", th:["cinema"], b:3, p:[-1,1,-1], q:"coffret films cultes blu-ray", why:"Les grands classiques réunis, pour une année de soirées ciné."},
+  {t:"buy", n:"Un jeu de société sur le cinéma", th:["cinema","jeux"], b:2, a:[0,3], p:[-1,0,1], fx:["rire"], q:"jeu de societe cinema", why:"Mimes, répliques et scènes cultes à deviner, pour des soirées très animées."},
+  {t:"buy", n:"Un écran de projection", th:["cinema","maison"], b:4, a:[1,4], p:[-1,-1,0], q:"ecran de projection", why:"Le complément parfait d'un vidéoprojecteur, pour une image nette comme au cinéma."},
+  {t:"buy", n:"Un casque de réalité virtuelle", th:["geek","jeux","cinema"], b:5, a:[0,3], p:[0,0,1], x:["gadget"], q:"casque realite virtuelle", why:"Des jeux et des films à 360 degrés, pour être au cœur de l'action."},
+  {t:"perso", n:"Un clap de cinéma gravé à son nom", th:["cinema","maison"], b:2, p:[0,1,1], fx:["rire","emotion"], x:["deco"], q:"clap cinema personnalise", why:"Son nom en réalisateur sur un vrai clap, pour le ou la cinéphile de la famille."},
+  {t:"buy", n:"Un piège photo pour la faune sauvage", th:["animaux","nature","geek"], b:3, a:[1,4], p:[1,0,1], x:["gadget"], q:"piege photo animaux", why:"Pour découvrir qui passe la nuit dans le jardin ou en forêt : renards, hérissons, chevreuils."},
+  {t:"buy", n:"Un panier orthopédique pour chien", th:["animaux"], b:3, pet:["chien"], p:[-1,-1,-1], q:"panier orthopedique chien", why:"Un vrai matelas pour les vieux os de son compagnon."},
+  {t:"buy", n:"Une litière autonettoyante", th:["animaux","geek"], b:5, pet:["chat"], a:[1,3], p:[-1,-1,1], x:["gadget"], q:"litiere autonettoyante", why:"Fini la corvée de litière, le bac se nettoie tout seul après chaque passage."},
+  {t:"perso", n:"Une médaille gravée pour son collier", th:["animaux"], b:1, pet:["chien","chat"], p:[0,1,0], q:"medaille gravee chien chat", why:"Le nom de son compagnon et un numéro gravés, joli et rassurant."},
+  {t:"buy", n:"Une fontaine à chocolat", th:["fete","cuisine"], b:2, p:[0,0,1], fx:["rire","epater"], prof:["fete"], x:["gadget"], q:"fontaine a chocolat", why:"Le succès assuré de la prochaine soirée, fruits et guimauves compris."},
+  {t:"buy", n:"Un jeu d'ambiance pour grandes tablées", th:["fete","jeux"], b:2, p:[0,0,1], fx:["rire"], prof:["fete"], q:"jeu d'ambiance soiree", why:"Des parties rapides qui font rire tout le monde, même ceux qui n'aiment pas les jeux."},
+  {t:"buy", n:"Un appareil à raclette 8 personnes", th:["cuisine","fete"], b:3, r:["amis","famille","amour"], p:[0,-1,0], fx:["utile","rire"], prof:["fete"], q:"appareil raclette 8 personnes", why:"Pour toutes les soirées d'hiver à venir, entre amis ou en famille."},
+  {t:"buy", n:"Une enceinte karaoké avec micros", th:["musique","fete"], b:4, a:[0,3], p:[1,0,1], fx:["rire","epater"], prof:["fete"], x:["gadget"], q:"enceinte karaoke micros", why:"Le son d'une vraie soirée karaoké, avec lumières et deux micros sans fil."},
+  {t:"buy", n:"Un jeu de cartes pour l'apéro", th:["fete","jeux"], b:1, p:[0,0,1], fx:["rire"], prof:["fete"], q:"jeu de cartes apero", why:"Des défis et des questions pour animer l'apéro, avec ou sans verre à la main."},
+  {t:"perso", n:"Un mug avec son surnom", th:["all"], b:1, r:["travail","amis","fratrie"], p:[0,0,1], fx:["rire"], q:"mug personnalise surnom", why:"Le surnom que tout le monde lui donne au bureau, enfin officiel."},
+  {t:"diy", n:"Un discours surprise avec diaporama", th:["fete","all"], b:1, tm:2, r:["amis","famille","travail","amour"], o:["anniv","depart","retraite"], p:[0,1,1], fx:["rire","emotion"], prof:["fete","souvenirs"],
+    why:"Dix minutes de photos, d'anecdotes et de fous rires, préparées rien que pour lui ou elle.",
+    steps:["Récupère 20 photos et 5 anecdotes auprès de ses proches.","Monte le diaporama dans le modèle et écris ton discours.","Lance-le au moment du gâteau ou du pot de départ."],
+    kit:{f:"canva", price:"9,90", c:["Le modèle de diaporama modifiable sur Canva","La trame du discours, drôle et touchante","Le message à envoyer pour collecter photos et anecdotes","Les conseils pour ne pas dépasser dix minutes"]}},
+  {t:"diy", n:"Un photomaton maison pour la soirée", th:["fete","art"], b:1, tm:2, r:["amis","famille","amour","fratrie"], o:["anniv","noel","cremaillere","rien"], p:[0,0,1], fx:["rire"], prof:["fete"],
+    why:"Un coin photo avec accessoires et fond, pour repartir avec des souvenirs de la soirée.",
+    steps:["Installe un fond et une lumière dans un coin de la pièce.","Dispose les accessoires imprimés et un trépied pour téléphone.","Imprime ou partage les photos à la fin de la soirée."],
+    kit:{f:"both", price:"6,90", c:["30 accessoires photo à imprimer, sur le thème choisi","Le panneau de bienvenue sur Canva","Le plan d'installation et de lumière","Les conseils pour de belles photos"]}},
+  {t:"buy", n:"Une tente de randonnée légère", th:["sport","nature","voyage"], b:4, a:[0,3], p:[1,-1,-1], prof:["aventure"], q:"tente randonnee legere 2 places", why:"Une tente qui se monte en cinq minutes, pour dormir sous les étoiles dès le prochain week-end."},
+  {t:"buy", n:"Une lampe frontale rechargeable", th:["sport","nature","voyage"], b:1, p:[1,-1,-1], prof:["aventure"], q:"lampe frontale rechargeable", why:"Indispensable pour les randos, le camping et les pannes de courant."},
+  {t:"buy", n:"Un kit de bivouac", th:["nature","voyage","sport"], b:2, a:[0,3], p:[1,-1,1], prof:["aventure"], fx:["epater","utile"], q:"kit bivouac survie", why:"Réchaud, couverts et accessoires malins, pour partir à l'aventure sans rien oublier."},
+  {t:"buy", n:"Un paddle gonflable", th:["sport","nature"], b:5, a:[0,3], p:[1,0,1], prof:["aventure"], fx:["epater"], q:"paddle gonflable", why:"Tout l'été sur l'eau, et il tient dans un sac une fois dégonflé."},
+  {t:"buy", n:"Une caméra d'action", th:["sport","voyage","geek"], b:4, a:[0,3], p:[1,0,1], prof:["aventure"], x:["gadget"], q:"camera d'action 4k", why:"Pour filmer ses descentes, ses plongées et ses voyages sous tous les angles."},
+  {t:"diy", n:"Une carte de micro-aventures à gratter", th:["voyage","sport","all"], b:1, tm:2, r:["amour","amis","fratrie","famille"], p:[1,1,1], prof:["aventure"], fx:["epater","emotion"],
+    why:"Douze petites aventures à vivre ensemble, cachées sous une pellicule à gratter.",
+    steps:["Choisis 12 aventures proches de chez vous : lever de soleil, pique-nique, randonnée de nuit.","Imprime la carte et colle les pastilles à gratter.","Gratte la première ensemble le jour J."],
+    kit:{f:"both", price:"9,90", c:["12 micro-aventures proposées selon vos goûts et votre région","La carte à imprimer, modifiable sur Canva","Le mode d'emploi de chaque aventure","La liste du matériel"]}},
+  {t:"buy", n:"Un coffret de cafés du monde", th:["cuisine","voyage"], b:2, p:[0,-1,0], q:"coffret cafe du monde", why:"Un tour du monde en tasse, du plus doux au plus corsé."},
+  {t:"buy", n:"Une boîte à repas isotherme", th:["cuisine"], b:2, r:["travail","amis","fratrie"], p:[0,-1,-1], q:"boite repas isotherme", why:"Le déjeuner de la cantine maison reste chaud jusqu'à midi."},
+  {t:"buy", n:"Un coffret de sirops artisanaux", th:["cuisine","fete"], b:2, p:[0,0,1], q:"coffret sirops artisanaux", why:"Des sirops originaux pour des cocktails sans alcool et des limonades maison."},
+  {t:"buy", n:"Un livre de cuisine d'un grand chef", th:["cuisine","lecture"], b:2, a:[1,4], p:[-1,0,-1], q:"livre de cuisine chef", why:"Les recettes d'un grand chef, expliquées pour la maison."},
+  {t:"buy", n:"Un couteau de chef japonais", th:["cuisine"], b:4, a:[1,4], p:[0,-1,-1], q:"couteau chef japonais", why:"Un couteau qui coupe comme aucun autre, et qui change la cuisine au quotidien."},
+  {t:"buy", n:"Un four à pizza d'extérieur", th:["cuisine","fete","nature"], b:5, r:["parents","amour","fratrie","amis"], a:[1,4], p:[1,0,1], prof:["fete"], fx:["epater"], q:"four a pizza exterieur", why:"Des pizzas napolitaines en 90 secondes, dans le jardin avec les amis."},
+  {t:"buy", n:"Un clavier mécanique", th:["geek"], b:3, a:[0,3], p:[-1,-1,0], x:["gadget"], q:"clavier mecanique", why:"Le plaisir de taper sur un vrai clavier, pour le travail comme pour le jeu."},
+  {t:"buy", n:"Une imprimante 3D pour débuter", th:["geek","art"], b:5, a:[0,3], p:[-1,0,1], fx:["epater"], x:["gadget"], q:"imprimante 3d debutant", why:"Pour fabriquer ses propres objets, de la figurine à la pièce de rechange."},
+  {t:"buy", n:"Un appareil de massage pour les pieds", th:["bienetre"], b:4, r:["parents","grands","amour"], a:[2,4], p:[-1,-1,0], x:["gadget"], q:"appareil massage pieds", why:"Un vrai massage des pieds après une longue journée, sans quitter le canapé."},
+  {t:"buy", n:"Une couverture lestée", th:["bienetre","maison"], b:3, a:[1,4], p:[-1,-1,0], q:"couverture lestee", why:"Une couverture qui enveloppe et apaise, pour mieux dormir."},
+  {t:"buy", n:"Un grand jeu de stratégie", th:["jeux"], b:3, r:["amis","famille","amour"], a:[1,4], p:[-1,0,-1], q:"jeu de societe strategie", why:"Des parties longues et passionnantes, pour les vrais joueurs du week-end."},
+  {t:"buy", n:"Un jeu d'échecs en bois", th:["jeux","maison"], b:4, a:[1,4], p:[-1,1,-1], q:"jeu d'echecs bois luxe", why:"Un bel échiquier qui trône sur la table basse et appelle à la revanche."}
+
+];
+
+/* Matériel des DIY : chaque ligne devient un lien partenaire Amazon (libellé, recherche) */
+const MAT = {
+  "Un escape game maison sur mesure": [["Un coffret à cadenas","coffret bois cadenas"],["Des cadenas à code","cadenas a code"],["Une lampe UV et un stylo invisible","stylo encre invisible lampe uv"],["Des enveloppes kraft","enveloppes kraft"]],
+  "Un tableau peint rien que pour vous": [["Une toile sur châssis","toile chassis 40x50"],["Un set de peinture acrylique","peinture acrylique set"],["Des pinceaux","pinceaux acrylique set"],["Du papier carbone pour décalquer","papier carbone"]],
+  "Un T-shirt personnalisé": [["Un T-shirt en coton blanc","t-shirt coton blanc"],["Du papier transfert textile","papier transfert textile"],["Des feutres pour tissu","feutres textile"]],
+  "Le livre de recettes de la famille": [["Un classeur ou un carnet à spirale","carnet spirale a5"],["Des pochettes plastiques","pochettes perforees a5"],["Des intercalaires","intercalaires a5"]],
+  "Le bocal des 52 raisons": [["Un bocal en verre","bocal verre couvercle"],["Du papier coloré","papier couleur a4"],["Du ruban","ruban satin"]],
+  "Une chasse au trésor en ville": [["Des enveloppes","enveloppes couleur"],["Un petit coffre","petit coffre tresor bois"],["Des cartes à imprimer","papier cartonne a4"]],
+  "Un scrapbook de vos souvenirs": [["Un album scrapbooking","album scrapbooking"],["Du masking tape","masking tape"],["De la colle en ruban","roller colle"],["Des feutres","feutres pointe fine"]],
+  "Des bougies parfumées maison": [["De la cire de soja","cire de soja bougie"],["Des mèches","meches bougie"],["Des parfums pour bougie","parfum bougie"],["Des pots en verre","pots verre bougie"]],
+  "Un coffret apéro fait maison": [["Des petits bocaux","petits bocaux verre"],["Une boîte en bois","boite cadeau bois"],["Du papier de soie","papier de soie"]],
+  "Un terrarium en bocal": [["Un bocal ou un vase en verre","bocal terrarium"],["Des billes d'argile","billes d'argile"],["Du charbon actif horticole","charbon actif terrarium"],["De la mousse décorative","mousse terrarium"]],
+  "Un chéquier de bons à échanger": [["Du papier cartonné","papier cartonne a4"],["Du ruban","ruban satin"],["Une perforatrice","perforatrice"]],
+  "Une playlist avec sa pochette de vinyle": [["Du papier photo carré","papier photo"],["Une pochette vinyle vierge","pochette vinyle vierge"]],
+  "Un herbier encadré": [["Un cadre double verre","cadre double verre"],["Une presse à fleurs","presse a fleurs"],["Des étiquettes","etiquettes kraft"]],
+  "Un calendrier de l'Avent fait main": [["Des pochettes numérotées","pochettes calendrier avent"],["Des pinces à linge en bois","mini pinces bois"],["De la ficelle","ficelle jute"]],
+  "Un mug peint à la main": [["Un mug blanc","mug blanc ceramique"],["Des feutres pour céramique","feutres porcelaine"]],
+  "Le quiz « Qui me connaît le mieux »": [["Du papier cartonné","papier cartonne a4"],["Un buzzer de jeu","buzzer jeu"],["Un petit lot à gagner","trophee rigolo"]],
+  "L'album de départ de toute l'équipe": [["Un livre d'or","livre d'or"],["Des feutres","feutres pointe fine"]],
+  "Une soirée ciné à la maison": [["Des cornets à popcorn","cornets popcorn"],["Du maïs à popcorn","mais popcorn"],["Une guirlande lumineuse","guirlande lumineuse"]],
+  "Une box spa maison": [["Des petits pots","petits pots verre"],["Du sel d'Epsom","sel d'epsom"],["Des huiles essentielles","huiles essentielles coffret"],["Une boîte cadeau","boite cadeau kraft"]],
+  "Un rendez-vous à l'aveugle avec un livre": [["Du papier kraft","papier kraft rouleau"],["De la ficelle","ficelle jute"],["Des étiquettes","etiquettes kraft"]],
+  "Des friandises maison pour son animal": [["Des emporte-pièces os","emporte piece os chien"],["Un bocal hermétique","bocal hermetique"]],
+  "L'album photo de son animal": [["Du papier photo","papier photo"],["Un album photo","album photo"]],
+  "Un concert privé à la maison": [["Une guirlande lumineuse","guirlande lumineuse"],["Une enceinte Bluetooth","enceinte bluetooth"],["Du papier cartonné pour les billets","papier cartonne a4"]],
+  "Un quiz ciné sur mesure": [["Du papier cartonné","papier cartonne a4"],["Un sablier","sablier"]],
+  "Une jardinière d'aromates en palette": [["Une bâche de jardinière","bache jardiniere"],["Du terreau","terreau aromatiques"],["Des vis à bois","vis a bois"]],
+  "Un programme d'entraînement sur mesure": [["Un carnet","carnet a5"],["Une serviette microfibre","serviette microfibre sport"],["Une gourde","gourde sport"]],
+  "Un hôtel à insectes fait main": [["Des tiges de bambou","tiges bambou"],["Des tasseaux de bois","tasseau bois"],["Une scie à main","scie a main"]],
+  "Un discours surprise avec diaporama": [["Une télécommande de présentation","telecommande presentation"],["Du papier cartonné","papier cartonne a4"]],
+  "Un photomaton maison pour la soirée": [["Des accessoires photobooth","accessoires photobooth"],["Un trépied pour téléphone","trepied telephone"],["Une lumière annulaire","anneau lumineux"],["Un fond photo","fond photo"]],
+  "Une carte de micro-aventures à gratter": [["Des autocollants à gratter","autocollant a gratter"],["Du papier cartonné","papier cartonne a4"]]
+};
+
+/* Valeurs par défaut */
+IDEAS.forEach(it => { it.r ??= ["all"]; it.o ??= ["all"]; it.a ??= [0,4]; it.p ??= [0,0,0]; it.x ??= []; it.mat ??= MAT[it.n] || []; });
+/* Profils, effets et caractère intime déduits de la personnalité de l'idée (à remplacer par des colonnes Airtable) */
+IDEAS.forEach(it => {
+  const [c, v, o] = it.p;
+  it.prof ??= [c === 1 && "aventure", c === -1 && "cocon", v === 1 && "souvenirs", v === -1 && "pratique", it.th.includes("fete") && "fete"].filter(Boolean);
+  it.fx ??= [v === -1 && "utile", v === 1 && "emotion", o === 1 && "epater", (it.th.includes("fete") || it.th.includes("jeux")) && o >= 0 && "rire"].filter(Boolean);
+  it.intime ??= it.t !== "buy" && v === 1 && !it.r.includes("travail");
+});
+
+const A = {rel:null, age:null, close:null, occ:null, del:null, th:[], nsp:false, pet:null, prof:null, x:[], fx:null, bud:null, time:null};
+let step = 0, picks = [], cur = 0, lastStep = -1;
+const $ = s => document.querySelector(s);
+const panel = $("#panel"), results = $("#results");
+const rel = () => RELS.find(r => r.k === A.rel);
+const occs = () => OCC.filter(o => o.on(A.rel));
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+const lc = s => /^Noël/.test(s) ? s : s.charAt(0).toLowerCase() + s.slice(1);
+const list = a => a.length < 2 ? (a[0] || "") : a.slice(0,-1).join(", ") + " et " + a[a.length-1];
+
+const pill = (set, v, label, on) => `<button class="pill" data-set="${set}" data-v="${v}" data-key="${set}:${v}" aria-pressed="${on}">${label}</button>`;
+const tog = (set, v, label, on, dis) => `<button class="pill" data-toggle="${set}" data-v="${v}" data-key="${set}:${v}" aria-pressed="${on}" ${dis ? 'aria-disabled="true"' : ""}>${label}</button>`;
+
+/* Parcours : chaque étape se dévoile au fil des clics, et passe seule à la suivante dès qu'elle est complète (sauf les choix multiples) */
+let fresh = null, timer = null;
+const blk = (id, label, inner, show = true) => show
+  ? `<div class="block ${fresh === id ? "q-anim" : ""}" role="group" aria-label="${label}"><span class="lbl">${label}</span>${inner}</div>` : "";
+const occNow = () => OCC.find(o => o.k === A.occ && o.on(A.rel));
+
+const tiles = (set, arr, cls = "tiles") => `<div class="${cls}">${arr.map(t => `<button class="tile" data-set="${set}" data-v="${t.k}" data-key="${set}:${t.k}" aria-pressed="${String(A[set]) === String(t.k)}">${t.l}<small>${t.s}</small></button>`).join("")}</div>`;
+
+const STEP_NAMES = ["Qui", "Quand", "Goûts", "Style", "Effet"];
+const STEPS = [
+  {auto:true, gate:"rel", valid:() => A.rel && A.age !== null && (!askClose() || A.close),
+   sum:() => cap(rel().pos) + ", " + AGE[A.age].l.toLowerCase(),
+   view:() => `
+    <h2 class="q-title">C'est pour qui${NB}?</h2>
+    <p class="q-help">${!A.rel ? "Choisis la personne, on affine juste après." : A.age === null ? "Et quel âge a " + rel().pos + NB + "?" : askClose() && !A.close ? "Et tu connais " + rel().pos + " comment" + NB + "?" : "C'est noté."}</p>
+    ${REL.map(g => `<div class="block" role="group" aria-label="${g.g}"><span class="lbl">${g.g}</span><div class="pills">${g.items.map(r => pill("rel", r.k, r.l, A.rel === r.k)).join("")}</div></div>`).join("")}
+    ${blk("age", "Son âge", `<div class="pills">${AGE.map(a => pill("age", a.k, a.l, A.age === a.k)).join("")}</div>`, !!A.rel)}
+    ${blk("close", "Tu le ou la connais", `<div class="pills">${CLOSE.map(c => pill("close", c.k, c.l, A.close === c.k)).join("")}</div>`, !!A.rel && A.age !== null && askClose())}`},
+  {auto:true, gate:"occ", valid:() => A.occ && A.del,
+   sum:() => occNow().l(A.rel) + ", " + DEL[A.del-1].l.toLowerCase(),
+   view:() => `
+    <h2 class="q-title">C'est pour quelle occasion${NB}?</h2>
+    <p class="q-help">${A.occ ? "Le délai nous dit si un cadeau fait main ou personnalisé a le temps d'arriver." : "Les occasions proposées dépendent de la personne choisie."}</p>
+    <div class="block" role="group" aria-label="Occasion"><div class="pills">${occs().map(o => pill("occ", o.k, o.l(A.rel), A.occ === o.k)).join("")}</div></div>
+    ${blk("del", "Et c'est pour quand" + NB + "?", `<div class="pills">${DEL.map(d => pill("del", d.k, d.l, A.del === d.k)).join("")}</div>`, !!A.occ)}`},
+  {auto:false, valid:() => (A.th.length > 0 || A.nsp) && (!A.th.includes("animaux") || A.pet),
+   sum:() => (A.nsp ? "Goûts : je ne sais pas trop" : list(TH.filter(t => A.th.includes(t.k)).map(t => t.l))) + (A.pet ? ", " + lc(PET.find(x => x.k === A.pet).l) : "") + (A.x.length ? ", " + A.x.length + " à éviter" : ""),
+   view:() => `
+    <h2 class="q-title">Qu'est-ce qu'aime ${rel().pos}${NB}?</h2>
+    <p class="q-help">Coche jusqu'à 3 thèmes, puis continue en bas. <strong class="counter">${A.th.length}/3</strong></p>
+    <div class="pills" role="group" aria-label="Thèmes">${TH.map(t => tog("th", t.k, t.l, A.th.includes(t.k), A.th.length >= 3 && !A.th.includes(t.k))).join("")}</div>
+    ${blk("pet", "Il ou elle a un animal" + NB + "?", `<div class="pills">${PET.map(x => pill("pet", x.k, x.l, A.pet === x.k)).join("")}</div>`, A.th.includes("animaux"))}
+    <div class="block"><span class="lbl">Tu hésites${NB}?</span><div class="pills"><button class="pill" data-nsp="1" data-key="nsp" aria-pressed="${A.nsp}">Je ne sais pas trop, vise une valeur sûre</button></div></div>
+    <div class="block" role="group" aria-label="À éviter"><span class="lbl">À éviter (facultatif)</span><div class="pills">${AVOID.map(a => tog("x", a.k, a.l, A.x.includes(a.k))).join("")}</div></div>`},
+  {auto:true, valid:() => !!A.prof,
+   sum:() => A.prof === "nsp" ? "Style : je ne sais pas trop" : PROF.find(p => p.k === A.prof).l,
+   view:() => `
+    <h2 class="q-title">Son dimanche idéal, c'est…</h2>
+    <p class="q-help">Une seule réponse, celle qui ressemble le plus à ${rel().pos}.</p>
+    ${tiles("prof", PROF)}
+`},
+  {auto:true, gate:"fx", valid:() => A.fx && A.bud && A.time !== null,
+   sum:() => FX.find(f => f.k === A.fx).l + ", " + BUD[A.bud-1].l + ", " + TIME[A.time].l.toLowerCase(),
+   view:() => `
+    <h2 class="q-title">Quand ${rel().pos} ouvrira son cadeau, tu veux…</h2>
+    <p class="q-help">${!A.fx ? "C'est l'effet tadam que tu vises." : !A.bud ? "Et ton budget" + NB + "?" : "Dernière question, ton idée arrive juste après."}</p>
+    ${tiles("fx", FX)}
+    ${blk("bud", "Budget", `<div class="pills">${BUD.map(b => pill("bud", b.k, b.l, A.bud === b.k)).join("")}</div>`, !!A.fx)}
+    ${blk("time", "Le temps que tu veux y passer", tiles("time", TIME), !!A.bud)}`}
+];
+
+function render(focusKey){
+  const s = STEPS[step], last = step === STEPS.length - 1, ok = s.valid();
+  const done = STEPS.map((x, i) => i !== step && i <= (A.__reached || 0) && STEPS.slice(0, i + 1).every(y => y.valid()));
+  panel.innerHTML = `
+    <div class="quiz-head">
+      <ol class="steps-nav" aria-label="Étapes">${STEP_NAMES.map((n, i) => `<li><button data-goto="${i}" class="${i === step ? "on" : done[i] ? "done" : ""}" ${done[i] ? "" : "disabled"} ${i === step ? 'aria-current="step"' : ""}>${n}</button></li>`).join("")}</ol>
+    </div>
+    ${STEPS.some((_, i) => done[i]) ? `<div class="answers">${STEPS.map((x, i) => done[i] ? `<button data-goto="${i}" title="Modifier">${x.sum()}</button>` : "").join("")}</div>` : ""}
+    <div class="${step !== lastStep ? "q-anim" : ""}">${s.view()}</div>
+    <div class="quiz-foot">
+      <button class="back" id="back" ${step === 0 ? "disabled" : ""}>Retour</button>
+      ${!s.auto ? `<button class="btn btn-cream" id="next" data-key="next" ${ok ? "" : "disabled"}>${last ? "Voir mon idée" : "Continuer"}</button>` : ""}
+    </div>`;
+  lastStep = step; fresh = null;
+  if (focusKey) panel.querySelector(`[data-key="${focusKey}"]`)?.focus({preventScroll:true});
+}
+
+function go(i){
+  clearTimeout(timer);
+  if (i >= STEPS.length) return showResults();
+  step = i; A.__reached = Math.max(A.__reached || 0, i);
+  render();
+  panel.querySelector(".pill, .tile, .seg button")?.focus({preventScroll:true});
+  const r = panel.getBoundingClientRect();
+  if (r.top < 0) panel.scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block:"start"});
+}
+
+panel.addEventListener("click", e => {
+  const b = e.target.closest("button");
+  if (!b || b.disabled) return;
+  const s = STEPS[step];
+  if (b.dataset.goto){ go(+b.dataset.goto); return; }
+  if (b.id === "back"){ go(step - 1); return; }
+  if (b.id === "next"){ go(step + 1); return; }
+  const key = b.dataset.key;
+  if (b.dataset.set){
+    const set = b.dataset.set, v = ["age","close","del","bud","time"].includes(set) ? +b.dataset.v : b.dataset.v;
+    const NEXT = {rel:"age", age:"close", occ:"del", fx:"bud", bud:"time"};
+    if (A[set] === null && NEXT[set]) fresh = NEXT[set];
+    A[set] = v;
+    if (set === "rel" && A.occ && !occs().some(o => o.k === A.occ)) A.occ = null;
+  } else if (b.dataset.toggle){
+    if (b.getAttribute("aria-disabled") === "true") return;
+    const arr = A[b.dataset.toggle], v = b.dataset.v, i = arr.indexOf(v);
+    if (i >= 0) arr.splice(i, 1); else arr.push(v);
+    if (b.dataset.toggle === "th" && arr.length) A.nsp = false;
+    if (b.dataset.toggle === "th" && v === "animaux" && i < 0) fresh = "pet";
+    if (!A.th.includes("animaux")) A.pet = null;
+  } else if (b.dataset.nsp){
+    A.nsp = !A.nsp;
+    if (A.nsp) A.th.length = 0;
+  }
+  render(key);
+  clearTimeout(timer);
+  if (s.auto && s.valid() && b.dataset.set) timer = setTimeout(() => go(step + 1), 380);
+});
+/* Sélection des idées */
+function eligible(it, strict = true, tiers = [A.bud]){
+  if (!tiers.includes(it.b)) return false;
+  if (!petOk(it)) return false;
+  if (it.x.some(x => A.x.includes(x))) return false;
+  if (it.t === "diy" && (A.time === 0 || it.tm > A.time)) return false;
+  if (!strict) return true;
+  if (A.age < it.a[0] || A.age > it.a[1]) return false;
+  if (it.t === "perso" && A.del < 2) return false;
+  if (it.t === "diy" && A.del < (it.md || (it.tm === 3 ? 2 : 1))) return false;
+  return true;
+}
+function score(it){
+  const r = rel();
+  let s = 0;
+  const m = it.th.filter(t => A.th.includes(t)).length;
+  s += m * 8 + (m === 0 && it.th.includes("all") ? 2 : 0);
+  if (it.b === A.bud) s += 4;
+  if (it.r.includes(A.rel)) s += 5; else if (it.r.some(g => r.grp.includes(g))) s += 3; else if (it.r.includes("all")) s += 1; else s -= 7;
+  if (it.o.includes(A.occ)) s += it.o.length <= 3 ? 6 : 3; else if (!it.o.includes("all")) s -= 7;
+  if (A.nsp) s += it.th.includes("all") ? 6 : 0;
+  if (A.prof && A.prof !== "nsp" && it.prof.includes(A.prof)) s += 3;
+  if (it.fx.includes(A.fx)) s += 5;
+  const close = askClose() ? A.close : 3;
+  if (it.intime) s += close === 1 ? -8 : close === 3 ? 2 : 0;
+  if (close === 1 && it.fx.includes("utile")) s += 2;
+  if (it.pet && petOk(it)) s += 4;
+  if (A.x.includes("tout")) s += it.t === "buy" ? -1 : 3;
+  if (A.time > 0 && it.t === "diy") s += 2;
+  return s;
+}
+/* Le budget choisi est respecté. On remplit d'abord avec les idées dans la tranche et sur ses thèmes,
+   puis seulement s'il en manque : thèmes une tranche en dessous, puis dans la tranche hors thèmes. Jamais au-dessus. */
+function pick(){
+  const themed = it => A.nsp || it.th.some(t => A.th.includes(t));
+  const below = A.bud > 1 ? [A.bud - 1] : [];
+  const groups = [
+    IDEAS.filter(it => eligible(it) && themed(it)),
+    IDEAS.filter(it => eligible(it, true, below) && themed(it)),
+    IDEAS.filter(it => eligible(it) && !themed(it)),
+    IDEAS.filter(it => eligible(it, false, [A.bud, ...below]))
+  ];
+  const out = [];
+  for (const g of groups){
+    const ranked = g.filter(it => !out.includes(it)).map((it, i) => ({it, s:score(it), i})).sort((a, b) => b.s - a.s || a.i - b.i);
+    while (out.length < 3 && ranked.length){
+      let best = 0, bestS = -Infinity;
+      ranked.forEach((c, k) => { const adj = c.s - (out.some(o => o.t === c.it.t) ? 2 : 0); if (adj > bestS){ bestS = adj; best = k; } });
+      out.push(ranked.splice(best, 1)[0].it);
+    }
+    if (out.length >= 3) break;
+  }
+  return out;
+}
+
+function reason(it){
+  const pos = rel().pos;
+  const m = TH.filter(t => it.th.includes(t.k) && A.th.includes(t.k)).map(t => t.k === "animaux" && it.pet && A.pet === "chien" ? "son chien" : t.k === "animaux" && it.pet && A.pet === "chat" ? "son chat" : t.k === "animaux" && it.pet ? "son animal" : t.ph);
+  const pr = A.prof && A.prof !== "nsp" && it.prof.includes(A.prof) ? PROF.find(p => p.k === A.prof).ph : null;
+  let s = "Choisie pour " + pos;
+  if (m.length) s += ", qui aime " + list(m);
+  if (pr) s += (m.length ? ", et " : ", ") + pr;
+  if (!m.length && !pr){
+    const o = occNow();
+    s += it.o.includes(A.occ) && it.o.length <= 3 ? ", pensée exprès " + o.ph(A.rel) : ", une valeur sûre quels que soient ses goûts";
+  }
+  s += ".";
+  if (it.fx.includes(A.fx)) s += " " + FX.find(f => f.k === A.fx).ph;
+  if (A.x.includes("tout") && it.t !== "buy") s += " Parfait pour quelqu'un qui a déjà tout.";
+  if (it.t === "diy") s += " Et ça tient dans " + (it.tm === 1 ? "une ou deux heures" : it.tm === 2 ? "un après-midi" : "un week-end") + ".";
+  return s;
+}
+
+const amazon = q => { const u = new URL("https://www.amazon.fr/s"); u.searchParams.set("k", q); if (AMAZON_TAG) u.searchParams.set("tag", AMAZON_TAG); return u.toString(); };
+const etsy = q => { const u = new URL("https://www.etsy.com/fr/search"); u.searchParams.set("q", q); return u.toString(); };
+
+function ideaHTML(it){
+  const TYPE = {buy:["À acheter",""], perso:["Personnalisé","perso"], diy:["À faire soi-même","diy"]}[it.t];
+  const facts = [
+    ["Budget", (it.t === "diy" ? "Matériel : " : "") + BUD[it.b-1].l.toLowerCase()],
+    ...(it.t === "diy" ? [["Temps", TIME[it.tm].l]] : []),
+    ["Délai", {buy:"Souvent livré en quelques jours", perso:"Prévois 1 à 2 semaines", diy:"Kit reçu en quelques minutes"}[it.t]]
+  ];
+  const main = it.t === "diy"
+    ? `<ol class="how-to">${it.steps.map(s => `<li>${s}</li>`).join("")}</ol>
+       ${it.mat.length ? `<div class="mat"><h4>Le matériel</h4><ul>${it.mat.map(m => `<li><span>${m[0]}</span><a href="${amazon(m[1])}" target="_blank" rel="sponsored noopener">Voir sur Amazon</a></li>`).join("")}</ul><span class="aff">Liens partenaires Amazon</span></div>` : ""}`
+    : `<div class="cta">
+         <a class="btn btn-red" href="${it.t === "buy" ? amazon(it.q) : etsy(it.q)}" target="_blank" rel="sponsored noopener">${it.t === "buy" ? "Voir les modèles" : "Voir les créations"}</a>
+         <span class="aff">Lien partenaire ${it.t === "buy" ? "Amazon" : "Etsy"}</span>
+       </div>`;
+  const side = `<dl class="facts">${facts.map(f => `<div><dt>${f[0]}</dt><dd>${f[1]}</dd></div>`).join("")}</dl>` + (it.t === "diy" ? `
+    <div class="kit">
+      <div class="kit-top"><strong>Le kit clé en main</strong><span class="price">${it.kit.price}${NB}€</span></div>
+      <span class="fmt">${KIT_FMT[it.kit.f]}</span>
+      <p>Tout est préparé pour ${rel().pos}, à partir de tes réponses.</p>
+      <ul>${it.kit.c.slice(0,3).map(c => `<li>${c}</li>`).join("")}</ul>
+      <button class="btn btn-cream" id="kit-open">Voir tout le contenu du kit</button>
+    </div>` : "");
+  return `<article class="idea anim" aria-live="polite">
+    <div class="idea-main">
+      <div class="chips">${cur === 0 ? `<span class="chip hot">Notre idée</span>` : `<span class="chip">Idée de secours</span>`}<span class="chip ${TYPE[1]}">${TYPE[0]}</span>${it.b < A.bud ? `<span class="chip">Sous ton budget</span>` : ""}</div>
+      <h3>${it.n}</h3>
+      <p class="why">${it.why}</p>
+      <p class="reason">${reason(it)}</p>
+      ${main}
+    </div>
+    <div class="side">${side}</div>
+  </article>`;
+}
+
+function recapHTML(){
+  const o = OCC.find(x => x.k === A.occ && x.on(A.rel));
+  const items = [
+    ["Pour", rel().pos + ", " + AGE[A.age].l.toLowerCase()],
+    ["Occasion", lc(o.l(A.rel)) + ", " + lc(DEL[A.del-1].l)],
+    ["Aime", A.nsp ? "on ne sait pas trop" : TH.filter(t => A.th.includes(t.k)).map(t => lc(t.l)).join(", ")],
+    ["Effet", FX.find(f => f.k === A.fx).l.toLowerCase()],
+    ["Budget", BUD[A.bud-1].l.toLowerCase()],
+    ["Temps", TIME[A.time].l.toLowerCase()]
+  ];
+  return items.map(i => `<span>${i[0]} <b>${i[1]}</b></span>`).join("");
+}
+
+const RM = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+function showResults(){
+  picks = pick(); cur = 0;
+  $("#quiz").hidden = true;
+  results.innerHTML = `
+    <div class="res-head">
+      <h2>Pour ${rel().pos}</h2>
+      <div class="res-actions"><button class="link" id="edit">Modifier mes réponses</button><button class="btn btn-line" id="restart">Nouveau quiz</button></div>
+    </div>
+    <div class="recap" id="recap">${recapHTML()}</div>
+    <div id="idea-slot" style="margin-top:18px"></div>
+    <div class="idea-nav">
+      <span class="dots" id="dots" aria-hidden="true"></span>
+      <span class="count" id="idea-count"></span>
+      <span class="spacer"></span>
+      <button class="link" id="first" hidden>Revenir à la première idée</button>
+      <button class="btn btn-line" id="another"></button>
+    </div>
+    <section class="adjust" id="adjust" aria-labelledby="adj-title"></section>
+    <section class="remind" aria-labelledby="rm-title">
+      <div>
+        <h3 id="rm-title">Ne rate pas la prochaine fois</h3>
+        <p>On t'envoie un e-mail deux semaines avant la prochaine occasion de ${rel().pos}, avec de nouvelles idées. Un e-mail par rappel, et tu te désinscris en un clic.</p>
+      </div>
+      <form id="rm-form" novalidate>
+        <label>Date de l'occasion<input type="date" id="rm-date" required></label>
+        <label>Ton e-mail<input type="email" id="rm-mail" autocomplete="email" placeholder="prenom@exemple.fr" required></label>
+        <label class="consent"><input type="checkbox" id="rm-ok" required><span>J'accepte que Tadam garde mon e-mail et cette date pour m'envoyer ce rappel. <a href="confidentialite.html#rappels">En savoir plus</a></span></label>
+        <div class="row"><button class="btn btn-red" type="submit">Me le rappeler</button><span class="msg" id="rm-msg" role="status"></span></div>
+      </form>
+    </section>`;
+  results.hidden = false;
+  renderAdjust();
+  showIdea(true);
+  $("#another").onclick = () => {
+    if (cur < picks.length - 1){ cur++; showIdea(); }
+    else { $("#adjust").scrollIntoView({behavior: RM() ? "auto" : "smooth", block:"start"}); $("#adjust .lpill")?.focus({preventScroll:true}); }
+  };
+  $("#first").onclick = () => { cur = 0; showIdea(); };
+  $("#edit").onclick = edit; $("#restart").onclick = restart;
+  $("#rm-form").addEventListener("submit", e => {
+    e.preventDefault();
+    const msg = $("#rm-msg");
+    if (!$("#rm-date").value) { msg.textContent = "Indique la date de l'occasion."; return; }
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test($("#rm-mail").value)) { msg.textContent = "Cet e-mail ne semble pas complet."; return; }
+    if (!$("#rm-ok").checked) { msg.textContent = "Coche la case pour accepter le rappel."; return; }
+    msg.textContent = "Prototype : rien n'est envoyé ni enregistré. En ligne, tu recevras un e-mail pour confirmer ton inscription.";
+  });
+  window.scrollTo({top:0, behavior: RM() ? "auto" : "smooth"});
+}
+
+function renderAdjust(){
+  const row = (k, lab, arr) => `<div class="adj-row"><span class="lab">${lab}</span><div class="pills">${arr.map(o => `<button class="lpill" data-adj="${k}" data-v="${o.k}" aria-pressed="${String(A[k]) === String(o.k)}">${o.l}</button>`).join("")}</div></div>`;
+  $("#adjust").innerHTML = `
+    <h3 id="adj-title">Pas encore ça${NB}? Ajuste sans tout refaire</h3>
+    <p>Change une réponse, on te propose aussitôt 3 nouvelles idées.</p>
+    ${row("fx", "L'effet voulu", FX)}
+    ${row("bud", "Le budget", BUD)}
+    ${row("time", "Le temps que tu veux y passer", TIME)}
+    <span class="toast" id="adj-toast" role="status"></span>`;
+}
+$("#results").addEventListener("click", e => {
+  const b = e.target.closest("[data-adj]");
+  if (!b) return;
+  const k = b.dataset.adj;
+  A[k] = k === "fx" ? b.dataset.v : +b.dataset.v;
+  picks = pick(); cur = 0;
+  renderAdjust();
+  $("#recap").innerHTML = recapHTML();
+  showIdea();
+  $("#adj-toast").textContent = "3 nouvelles idées, la première est juste au-dessus.";
+  $(`[data-adj="${k}"][data-v="${b.dataset.v}"]`)?.focus({preventScroll:true});
+});
+
+function showIdea(reveal = false){
+  const it = picks[cur];
+  const cover = reveal && !RM() ? `<div class="cover" aria-hidden="true"><p>Ton idée pour ${rel().pos}</p><strong>Tadam<b>!</b></strong></div>` : "";
+  $("#idea-slot").innerHTML = `<div class="idea-wrap">${cover}${ideaHTML(it)}</div>`;
+  $("#dots").innerHTML = picks.map((_, i) => `<i class="${i === cur ? "on" : ""}"></i>`).join("");
+  $("#idea-count").textContent = `Idée ${cur+1} sur ${picks.length}`;
+  const last = cur >= picks.length - 1;
+  $("#another").textContent = last ? "Ajuster mes critères" : "Cette idée ne me plaît pas, une autre";
+  $("#first").hidden = !last || picks.length < 2;
+  $("#kit-open")?.addEventListener("click", e => openKit(it, e.currentTarget));
+  const c = $(".cover");
+  if (c){
+    setTimeout(() => { c.classList.add("open"); confetti(); }, 700);
+    c.addEventListener("animationend", () => c.remove());
+    setTimeout(() => c.remove(), 1800);
+  } else if (reveal) confetti();
+}
+
+function edit(){ $("#quiz").hidden = false; results.hidden = true; lastStep = -1; go(0); $("#quiz").scrollIntoView({behavior:"smooth"}); }
+function restart(){
+  Object.assign(A, {rel:null, age:null, close:null, occ:null, del:null, th:[], nsp:false, pet:null, prof:null, x:[], fx:null, bud:null, time:null, __reached:0});
+  edit();
+}
+
+/* Fenêtre kit */
+let lastFocus = null;
+function openKit(it, from){
+  lastFocus = from;
+  const o = occNow();
+  $("#dialog").className = "dialog wide";
+  $("#dialog").innerHTML = `
+    <div>
+      <p class="pv-lab">Aperçu de la première page</p>
+      <div class="kit-page" aria-label="Aperçu du kit">
+        <div class="kp-top"><strong>Tadam<b>!</b></strong><span>Kit clé en main</span></div>
+        <h3>${it.n}</h3>
+        <p class="kp-for">Préparé pour ${rel().pos}, ${o.ph(A.rel)}.</p>
+        <div class="kp-sec">Au sommaire</div>
+        <ol>${it.kit.c.map(c => `<li>${c}</li>`).join("")}</ol>
+        <div class="kp-sec">Pour commencer</div>
+        <p>${it.steps[0]}</p>
+        <div class="kp-foot">Page 1</div>
+      </div>
+    </div>
+    <div>
+      <span class="chip diy">Kit clé en main</span>
+      <h2 id="dlg-title">${it.n}</h2>
+      <p>Un kit complet, préparé pour ${rel().pos} à partir de tes réponses. Tu le reçois par e-mail en quelques minutes.</p>
+      <p><strong>Format :</strong> ${KIT_FMT[it.kit.f].toLowerCase()}.</p>
+      <ul>${it.kit.c.map(c => `<li>${c}</li>`).join("")}</ul>
+      <label class="consent-k"><input type="checkbox" id="kit-ok"><span>Je demande à recevoir le kit tout de suite et je reconnais perdre mon droit de rétractation (<a href="cgv.html">conditions de vente</a>).</span></label>
+      <div class="note">Paiement unique de ${it.kit.price}${NB}€, sans abonnement. Le paiement en ligne sera activé dans la prochaine version du site.</div>
+      <div class="row">
+        <button class="btn btn-line" id="dlg-close">Fermer</button>
+        <button class="btn btn-off" disabled>Paiement bientôt disponible</button>
+      </div>
+    </div>`;
+  $("#overlay").hidden = false;
+  $("#dlg-close").focus();
+  $("#dlg-close").onclick = closeKit;
+}
+function closeKit(){ $("#overlay").hidden = true; lastFocus?.focus(); }
+$("#overlay").addEventListener("click", e => { if (e.target.id === "overlay") closeKit(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#overlay").hidden) closeKit(); });
+
+/* Le moment tadam */
+function confetti(){
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const c = $("#confetti"); let ctx = null; try { ctx = c.getContext("2d"); } catch (e) {} if (!ctx) return;
+  const dpr = devicePixelRatio || 1;
+  const W = c.width = innerWidth * dpr, H = c.height = innerHeight * dpr;
+  const css = getComputedStyle(document.documentElement);
+  const cols = ["--red","--orange","--yellow","--red-hi"].map(v => css.getPropertyValue(v).trim());
+  const P = Array.from({length:150}, () => ({
+    x:W/2 + (Math.random()-.5)*W*.25, y:H*.3, vx:(Math.random()-.5)*26*dpr, vy:(-Math.random()*22-8)*dpr,
+    w:(6+Math.random()*8)*dpr, h:(4+Math.random()*6)*dpr, r:Math.random()*6, vr:(Math.random()-.5)*.4, c:cols[Math.floor(Math.random()*cols.length)]
+  }));
+  c.hidden = false; let t = 0;
+  (function tick(){
+    ctx.clearRect(0,0,W,H);
+    P.forEach(p => { p.vy += .7*dpr; p.vx *= .985; p.x += p.vx; p.y += p.vy; p.r += p.vr;
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.r); ctx.fillStyle = p.c; ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h); ctx.restore(); });
+    if (++t < 110) requestAnimationFrame(tick); else { ctx.clearRect(0,0,W,H); c.hidden = true; }
+  })();
+}
+
+/* Vitrine : profils d'exemple, l'idée affichée est celle que le quiz donne vraiment */
+const EXAMPLES = [
+  {rel:"bm", age:3, close:1, occ:"noel", del:2, th:[], nsp:true, fx:"utile", bud:2, time:0},
+  {rel:"soeur", age:1, occ:"anniv", del:3, th:["animaux"], pet:"chat", prof:"cocon", fx:"emotion", bud:2, time:2},
+  {rel:"couple", age:2, occ:"valentin", del:2, th:["voyage"], prof:"aventure", fx:"emotion", bud:2, time:2},
+  {rel:"colm", age:2, close:2, occ:"depart", del:2, th:["cuisine"], prof:"fete", fx:"rire", bud:2, time:0},
+  {rel:"gp", age:4, occ:"fete", del:3, th:["nature"], prof:"pratique", fx:"utile", bud:1, time:0},
+  {rel:"bff", age:1, occ:"anniv", del:1, th:["fete","mode"], prof:"fete", fx:"rire", bud:1, time:1},
+  {rel:"pere", age:3, occ:"retraite", del:3, th:["musique"], prof:"cocon", fx:"epater", bud:5, time:0},
+  {rel:"enfance", age:2, occ:"rien", del:2, th:["jeux"], prof:"souvenirs", fx:"emotion", bud:1, time:2}
+];
+const BLANK = {rel:null, age:null, close:null, occ:null, del:null, th:[], nsp:false, pet:null, prof:null, x:[], fx:null, bud:null, time:null};
+let exStart = 0;
+function withAnswers(ex, fn){
+  const saved = JSON.parse(JSON.stringify(A));
+  Object.assign(A, JSON.parse(JSON.stringify(BLANK)), JSON.parse(JSON.stringify(ex)));
+  try { return fn(); } finally { Object.assign(A, saved); }
+}
+function exampleHTML(ex, i){
+  return withAnswers(ex, () => {
+    const it = pick()[0];
+    const likes = A.pet && A.pet !== "none" ? "qui adore son " + A.pet : A.nsp ? "dont tu ne connais pas trop les goûts" : "qui aime " + list(TH.filter(t => A.th.includes(t.k)).map(t => t.ph));
+    const peu = askClose() && A.close === 1;
+    const who = cap(rel().pos) + (peu ? " que tu connais peu" : "") + (peu && A.nsp ? "" : ", " + likes) + ", " + occNow().ph(A.rel) + ".";
+    const type = {buy:"À acheter", perso:"Personnalisé", diy:"À faire soi-même"}[it.t];
+    return `<article class="xtag"><p class="who">${who}</p><h3>${it.n}</h3><span class="meta">${type}, ${BUD[it.b-1].l.toLowerCase()}</span><button data-ex="${i}">Voir le résultat</button></article>`;
+  });
+}
+function renderTags(){
+  const n = innerWidth < 960 && innerWidth >= 560 ? 2 : 4;
+  const idx = Array.from({length:Math.min(n, EXAMPLES.length)}, (_, k) => (exStart + k) % EXAMPLES.length);
+  $("#tags").innerHTML = idx.map(i => exampleHTML(EXAMPLES[i], i)).join("");
+}
+$("#tags").addEventListener("click", e => {
+  const b = e.target.closest("[data-ex]");
+  if (!b) return;
+  Object.assign(A, JSON.parse(JSON.stringify(BLANK)), JSON.parse(JSON.stringify(EXAMPLES[+b.dataset.ex])), {__reached:4});
+  step = 4; lastStep = 4;
+  showResults();
+});
+$("#shuffle").addEventListener("click", () => { exStart = (exStart + 4) % EXAMPLES.length; renderTags(); });
+renderTags();
+
+/* Cookies : aucun traceur n'est chargé sans accord. Le choix reste modifiable depuis le pied de page. */
+const CK = "tadam-cookies";
+const ckGet = () => { try { return localStorage.getItem(CK); } catch (e) { return null; } };
+const ckSet = v => { try { localStorage.setItem(CK, v); } catch (e) {} };
+if (!ckGet()) $("#cookies").hidden = false;
+$("#cookies").addEventListener("click", e => { const b = e.target.closest("[data-ck]"); if (!b) return; ckSet(b.dataset.ck); $("#cookies").hidden = true; });
+$("#ck-open").addEventListener("click", () => { $("#cookies").hidden = false; $("#cookies button").focus(); });
+
+render();
+</script>
+</body>
+</html>
