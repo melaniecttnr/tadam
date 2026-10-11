@@ -948,11 +948,18 @@ function score(it){
   if (close === 1 && it.fx.includes("utile")) s += 2;
   if (it.pet && petOk(it)) s += 4;
   if (A.x.includes("tout")) s += it.t === "buy" ? -1 : 3;
-  if (A.time > 0 && it.t === "diy") s += 2;
+  /* Le temps que la personne veut y passer pèse autant qu'un thème : plus il est long, plus on pousse le DIY (et son kit) et moins l'achat.
+     Un DIY qui occupe exactement le temps annoncé est le mieux placé, un DIY bien plus court laisse du temps inutilisé. */
+  if (A.time > 0){
+    if (it.t === "diy") s += 8 + (it.tm === A.time ? 6 : -2 * (A.time - it.tm));
+    else if (it.t === "buy") s -= 3 * A.time;
+    else s -= A.time;
+  }
   return s;
 }
-/* Le budget choisi est respecté. On remplit d'abord avec les idées dans la tranche et sur ses thèmes,
-   puis seulement s'il en manque : thèmes une tranche en dessous, puis dans la tranche hors thèmes. Jamais au-dessus. */
+/* Le budget choisi est respecté : jamais d'idée au-dessus. On cherche dans la tranche et sur ses thèmes, puis seulement s'il en manque
+   une tranche en dessous, puis dans la tranche hors thèmes. Chaque palier de repli coûte des points, sans jamais fermer la porte à un bon DIY.
+   Composition : dès que la personne veut y passer du temps, au moins 2 idées sur 3 sont des DIY avec kit (s'il y en a), et la première en est un. */
 function pick(){
   const themed = it => A.nsp || it.th.some(t => A.th.includes(t));
   const below = A.bud > 1 ? [A.bud - 1] : [];
@@ -962,17 +969,23 @@ function pick(){
     IDEAS.filter(it => eligible(it) && !themed(it)),
     IDEAS.filter(it => eligible(it, false, [A.bud, ...below]))
   ];
+  const pool = [];
+  groups.forEach((g, gi) => g.forEach((it, i) => { if (!pool.some(c => c.it === it)) pool.push({it, s:score(it) - gi * 5, i}); }));
+  const byScore = (a, b) => b.s - a.s || a.i - b.i;
   const out = [];
-  for (const g of groups){
-    const ranked = g.filter(it => !out.includes(it)).map((it, i) => ({it, s:score(it), i})).sort((a, b) => b.s - a.s || a.i - b.i);
-    while (out.length < 3 && ranked.length){
-      let best = 0, bestS = -Infinity;
-      ranked.forEach((c, k) => { const adj = c.s - (out.some(o => o.t === c.it.t) ? 2 : 0); if (adj > bestS){ bestS = adj; best = k; } });
-      out.push(ranked.splice(best, 1)[0].it);
-    }
-    if (out.length >= 3) break;
+  const take = c => { pool.splice(pool.indexOf(c), 1); out.push(c); };
+  if (A.time > 0){
+    pool.filter(c => c.it.t === "diy").sort(byScore).slice(0, 2).forEach(take);
   }
-  return out;
+  while (out.length < 3 && pool.length){
+    let best = null, bestS = -Infinity;
+    pool.forEach(c => { const adj = c.s - (out.some(o => o.it.t === c.it.t) ? 2 : 0); if (adj > bestS){ bestS = adj; best = c; } });
+    take(best);
+  }
+  out.sort(byScore);
+  const d = out.findIndex(c => c.it.t === "diy");
+  if (A.time > 0 && d > 0) out.unshift(out.splice(d, 1)[0]);
+  return out.map(c => c.it);
 }
 
 function reason(it){
