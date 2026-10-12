@@ -44,7 +44,7 @@ Un site qui trouve une idée cadeau pour un proche en 5 questions. Les idées vi
 ## Charte et design
 
 - **Logo** : « Tadam » en rouge foncé, point d'exclamation en orange, Bricolage Grotesque en gras (800). Validé par Mélanie, à ne pas modifier.
-- **Fond de page** : beige chaud `#F3E3CE`. Cartes : `#FCF4E8`. Fond secondaire : `#EAD4B8`.
+- **Fond de page** : blanc `#FFFFFF` (changé le 12 octobre 2026, avant : beige `#F3E3CE`). Cartes : `#FCF4E8`. Fond secondaire : `#F6EAD9`. Les pages légales ont aussi le fond blanc.
 - **Rouge foncé** `#8E1B14` : bloc des questions, boutons, titres. Rouge profond `#6C110B`, rouge survol `#A92A1F`.
 - **Orange** `#F07A22` et **jaune** `#FFC53D` : petites touches uniquement (point d'exclamation, progression, puces).
 - **Textes** : brun très foncé `#2A140E`, secondaire `#6B4A3C`, beige `#F7E6CF` sur le rouge. Traits `#DCC1A2`.
@@ -72,9 +72,9 @@ Principes tirés du benchmark :
 La suite de chaque étape s'affiche au fil des clics. On passe tout seul à l'étape suivante dès qu'elle est complète (étapes 1, 2, 4 et 5), sans bouton, y compris quand on revient modifier une réponse. Le bouton « Continuer » n'existe qu'à l'étape 3, la seule à choix multiples. Mélanie a demandé de ne pas afficher de bouton inutile.
 
 1. **Pour qui**
-   - D'abord le genre : une femme, un homme, ou autre ou non précisé (formulations neutres : mon parent, mon frère ou ma sœur, un ami ou une amie, etc.).
-   - Puis le rôle, dans une seule liste dont les libellés s'adaptent au genre : meilleur(e) ami(e), ami(e), ami(e) d'enfance, ma moitié, parent, frère ou sœur, grand-parent, beau-parent, collègue, boss. Changer de genre convertit le rôle déjà choisi.
-   - Pour le genre neutre, le matching s'appuie sur les groupes (amis, parents, fratrie, grands-parents, travail) : les idées prévues pour un seul genre (par exemple fête des mères) ne sont pas proposées.
+   - Une sous-question à la fois, les réponses déjà données restent en pastilles modifiables.
+   - D'abord le rôle, dans une seule liste aux libellés doubles : ma meilleure amie ou mon meilleur ami, une amie ou un ami, une amie ou un ami d'enfance, ma moitié, ma mère ou mon père, ma sœur ou mon frère, ma grand-mère ou mon grand-père, ma belle-mère ou mon beau-père, une collègue ou un collègue, ma boss ou mon boss. Pas de question sur le genre.
+   - Le genre se précise seulement quand il compte : au choix de la fête des mères, des pères, des grands-mères ou des grands-pères à l'étape 2, le rôle devient mère, père, etc. Sinon le matching s'appuie sur les groupes (amis, parents, fratrie, grands-parents, travail) et ne propose pas les idées prévues pour un seul genre.
    - Puis l'âge : moins de 18 ans, 18 à 30, 30 à 50, 50 à 70, plus de 70.
    - Puis, seulement pour une amie, un ami, les beaux-parents et le travail : « Tu le ou la connais très bien, plutôt bien, pas tant que ça ». Si c'est « pas tant que ça », on écarte les cadeaux trop intimes et on privilégie l'utile.
 2. **L'occasion et le délai**

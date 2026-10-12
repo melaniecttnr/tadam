@@ -10,7 +10,7 @@
 <style>
 /* Layout : page beige chaud, un grand bloc rouge foncé en haut (accroche + quiz), l'idée révélée en étiquette cadeau sur le beige. Un seul thème clair, assumé. */
 :root{
-  --bg:#F3E3CE; --bg-2:#EAD4B8; --paper:#FCF4E8; --ink:#2A140E; --ink-soft:#6B4A3C; --line:#DCC1A2;
+  --bg:#FFFFFF; --bg-2:#F6EAD9; --paper:#FCF4E8; --ink:#2A140E; --ink-soft:#6B4A3C; --line:#DCC1A2;
   --red:#8E1B14; --red-deep:#6C110B; --red-hi:#A92A1F; --cream:#F7E6CF; --cream-soft:rgba(247,230,207,.74); --cream-faint:rgba(247,230,207,.1); --cream-line:rgba(247,230,207,.3);
   --orange:#F07A22; --yellow:#FFC53D;
   --shadow:0 1px 0 rgba(42,20,14,.05), 0 22px 44px -26px rgba(108,17,11,.55);
@@ -384,43 +384,43 @@ const REL = [
   {g:"Amis", items:[
     {k:"bff", gd:"f", l:"Ma meilleure amie", pos:"ta meilleure amie", grp:["amis"]},
     {k:"bffm", gd:"m", l:"Mon meilleur ami", pos:"ton meilleur ami", grp:["amis"]},
-    {k:"bffn", gd:"n", l:"Un meilleur ami ou une meilleure amie", pos:"ton meilleur ami ou ta meilleure amie", grp:["amis"]},
+    {k:"bffn", gd:"n", l:"Ma meilleure amie ou mon meilleur ami", pos:"ton meilleur ami ou ta meilleure amie", grp:["amis"]},
     {k:"amie", gd:"f", l:"Une amie", pos:"ton amie", grp:["amis"]},
     {k:"ami", gd:"m", l:"Un ami", pos:"ton ami", grp:["amis"]},
-    {k:"amin", gd:"n", l:"Un ami ou une amie", pos:"ton ami ou ton amie", grp:["amis"]},
+    {k:"amin", gd:"n", l:"Une amie ou un ami", pos:"ton ami ou ton amie", grp:["amis"]},
     {k:"enff", gd:"f", l:"Une amie d'enfance", pos:"ton amie d'enfance", grp:["amis"]},
     {k:"enfance", gd:"m", l:"Un ami d'enfance", pos:"ton ami d'enfance", grp:["amis"]},
-    {k:"enfn", gd:"n", l:"Un ami ou une amie d'enfance", pos:"ton ami ou ton amie d'enfance", grp:["amis"]}]},
+    {k:"enfn", gd:"n", l:"Une amie ou un ami d'enfance", pos:"ton ami ou ton amie d'enfance", grp:["amis"]}]},
   {g:"Amour", items:[
     {k:"couple", gd:"n", l:"Ma moitié", pos:"ta moitié", grp:["amour"]}]},
   {g:"Famille", items:[
     {k:"mere", gd:"f", l:"Ma mère", pos:"ta mère", grp:["famille","parents"]},
     {k:"pere", gd:"m", l:"Mon père", pos:"ton père", grp:["famille","parents"]},
-    {k:"parent", gd:"n", l:"Mon parent", pos:"ton parent", grp:["famille","parents"]},
+    {k:"parent", gd:"n", l:"Ma mère ou mon père", pos:"ton parent", grp:["famille","parents"]},
     {k:"soeur", gd:"f", l:"Ma sœur", pos:"ta sœur", grp:["famille","fratrie"]},
     {k:"frere", gd:"m", l:"Mon frère", pos:"ton frère", grp:["famille","fratrie"]},
-    {k:"fratn", gd:"n", l:"Mon frère ou ma sœur", pos:"ton frère ou ta sœur", grp:["famille","fratrie"]},
+    {k:"fratn", gd:"n", l:"Ma sœur ou mon frère", pos:"ton frère ou ta sœur", grp:["famille","fratrie"]},
     {k:"gm", gd:"f", l:"Ma grand-mère", pos:"ta grand-mère", grp:["famille","grands"]},
     {k:"gp", gd:"m", l:"Mon grand-père", pos:"ton grand-père", grp:["famille","grands"]},
-    {k:"grandp", gd:"n", l:"Mon grand-parent", pos:"ton grand-parent", grp:["famille","grands"]},
+    {k:"grandp", gd:"n", l:"Ma grand-mère ou mon grand-père", pos:"ton grand-parent", grp:["famille","grands"]},
     {k:"bm", gd:"f", l:"Ma belle-mère", pos:"ta belle-mère", grp:["famille","parents"]},
     {k:"bp", gd:"m", l:"Mon beau-père", pos:"ton beau-père", grp:["famille","parents"]},
-    {k:"beaup", gd:"n", l:"Mon beau-parent", pos:"ton beau-parent", grp:["famille","parents"]}]},
+    {k:"beaup", gd:"n", l:"Ma belle-mère ou mon beau-père", pos:"ton beau-parent", grp:["famille","parents"]}]},
   {g:"Travail", items:[
     {k:"colf", gd:"f", l:"Une collègue", pos:"ta collègue", grp:["travail"]},
     {k:"colm", gd:"m", l:"Un collègue", pos:"ton collègue", grp:["travail"]},
-    {k:"coln", gd:"n", l:"Un collègue ou une collègue", pos:"ton collègue ou ta collègue", grp:["travail"]},
+    {k:"coln", gd:"n", l:"Une collègue ou un collègue", pos:"ton collègue ou ta collègue", grp:["travail"]},
     {k:"bossf", gd:"f", l:"Ma boss", pos:"ta boss", grp:["travail"]},
     {k:"bossm", gd:"m", l:"Mon boss", pos:"ton boss", grp:["travail"]},
-    {k:"boss", gd:"n", l:"Mon ou ma boss", pos:"ton ou ta boss", grp:["travail"]}]}
+    {k:"boss", gd:"n", l:"Ma boss ou mon boss", pos:"ton ou ta boss", grp:["travail"]}]}
 ];
 const RELS = REL.flatMap(g => g.items);
-const GENDER = [{k:"f", l:"Une femme"}, {k:"m", l:"Un homme"}, {k:"n", l:"Autre ou non précisé"}];
-/* Même rôle dans les trois genres : [féminin, masculin, neutre] */
+/* Même rôle au féminin, au masculin et au neutre : [féminin, masculin, neutre]. Le quiz propose les rôles neutres (libellés doubles) ;
+   le genre se précise seulement quand il compte, au choix d'une fête des mères, des pères, des grands-mères ou des grands-pères. */
 const ROLE_SETS = [["bff","bffm","bffn"],["amie","ami","amin"],["enff","enfance","enfn"],["mere","pere","parent"],["soeur","frere","fratn"],["gm","gp","grandp"],["bm","bp","beaup"],["colf","colm","coln"],["bossf","bossm","boss"]];
-const GI = {f:0, m:1, n:2};
-const gender = () => A.gender || RELS.find(r => r.k === A.rel)?.gd || null;
-const roleKey = (k, g) => { const set = ROLE_SETS.find(x => x.includes(k)); return set ? set[GI[g]] : k; };
+const roleKey = k => (ROLE_SETS.find(x => x.includes(k)) || [,, k])[2];
+const FETE_N = {parent:[["mere","mères"],["pere","pères"]], beaup:[["bm","mères"],["bp","pères"]], grandp:[["gm","grands-mères"],["gp","grands-pères"]]};
+const ROLE_LIST = [...new Set(RELS.map(r => roleKey(r.k)))];
 
 const AGE = [{k:0,l:"Moins de 18 ans"},{k:1,l:"18 à 30 ans"},{k:2,l:"30 à 50 ans"},{k:3,l:"50 à 70 ans"},{k:4,l:"Plus de 70 ans"}];
 
@@ -431,7 +431,7 @@ const OCC = [
   {k:"anniv", l:() => "Son anniversaire", ph:() => "pour son anniversaire", on:() => true},
   {k:"noel", l:() => "Noël", ph:() => "pour Noël", on:() => true},
   {k:"valentin", l:() => "La Saint-Valentin", ph:() => "pour la Saint-Valentin", on:k => k === "couple"},
-  {k:"fete", l:k => "La fête des "+FETE[k], ph:k => "pour la fête des "+FETE[k], on:k => !!FETE[k]},
+  {k:"fete", l:k => "La fête des "+FETE[k], ph:k => "pour la fête des "+FETE[k], on:k => !!FETE[k] || !!FETE_N[k]},
   {k:"depart", l:() => "Un départ", ph:() => "pour son départ", on:k => inGrp(k,"travail")},
   {k:"retraite", l:() => "Sa retraite", ph:() => "pour sa retraite", on:k => inGrp(k,"travail","parents","grands")},
   {k:"cremaillere", l:() => "Une crémaillère", ph:() => "pour sa crémaillère", on:k => inGrp(k,"amis","fratrie","travail","parents")},
@@ -890,7 +890,7 @@ IDEAS.forEach(it => {
   it.intime ??= it.t !== "buy" && v === 1 && !it.r.includes("travail");
 });
 
-const A = {gender:null, rel:null, age:null, close:null, occ:null, del:null, th:[], nsp:false, pet:null, prof:null, x:[], fx:null, bud:null, time:null};
+const A = {rel:null, age:null, close:null, occ:null, del:null, th:[], nsp:false, pet:null, prof:null, x:[], fx:null, bud:null, time:null};
 let step = 0, picks = [], cur = 0, lastStep = -1;
 const $ = s => document.querySelector(s);
 const panel = $("#panel"), results = $("#results");
@@ -907,6 +907,9 @@ const tog = (set, v, label, on, dis) => `<button class="pill" data-toggle="${set
 let fresh = null, timer = null;
 const blk = (id, label, inner, show = true) => show
   ? `<div class="block ${fresh === id ? "q-anim" : ""}" role="group" aria-label="${label}"><span class="lbl">${label}</span>${inner}</div>` : "";
+const occPills = () => occs().flatMap(o => o.k === "fete" && FETE_N[A.rel]
+  ? FETE_N[A.rel].map(([k, w]) => `<button class="pill" data-set="occ" data-v="fete" data-conv="${k}" data-key="occ:fete-${k}" aria-pressed="false">La fête des ${w}</button>`)
+  : [pill("occ", o.k, o.l(A.rel), A.occ === o.k)]).join("");
 const occNow = () => OCC.find(o => o.k === A.occ && o.on(A.rel));
 
 const tiles = (set, arr, cls = "tiles") => `<div class="${cls}">${arr.map(t => `<button class="tile" data-set="${set}" data-v="${t.k}" data-key="${set}:${t.k}" aria-pressed="${String(A[set]) === String(t.k)}">${t.l}<small>${t.s}</small></button>`).join("")}</div>`;
@@ -917,20 +920,17 @@ const STEPS = [
    sum:() => cap(rel().pos) + ", " + AGE[A.age].l.toLowerCase(),
    view:() => {
     /* Une seule sous-question à la fois. Les réponses déjà données restent en petites pastilles, cliquables pour les modifier. */
-    const next = !gender() ? "gender" : !A.rel ? "rel" : A.age === null ? "age" : askClose() && !A.close ? "close" : "done";
+    const next = !A.rel ? "rel" : A.age === null ? "age" : askClose() && !A.close ? "close" : "done";
     const sub = A.__edit || next;
-    const closeQ = {f:"Tu la connais comment", m:"Tu le connais comment", n:"Tu le ou la connais comment"}[gender()] || "Tu le ou la connais comment";
     const given = [
-      ["gender", gender() && GENDER.find(g => g.k === gender()).l],
       ["rel", A.rel && cap(rel().l)],
       ["age", A.age !== null && AGE[A.age].l],
       ["close", askClose() && A.close && CLOSE.find(c => c.k === A.close).l]
     ].filter(x => x[1] && x[0] !== sub);
     const Q = {
-      gender:["C'est pour qui" + NB + "?", "Une femme, un homme, ou autre.", GENDER.map(g => pill("gender", g.k, g.l, gender() === g.k))],
-      rel:["Qui est-ce pour toi" + NB + "?", "Choisis son rôle dans ta vie.", [...new Set(REL.flatMap(g => g.items.map(r => roleKey(r.k, gender() || "n"))))].map(k => { const r = RELS.find(x => x.k === k); return pill("rel", r.k, r.l, A.rel === r.k); })],
+      rel:["C'est pour qui" + NB + "?", "Choisis son rôle dans ta vie.", ROLE_LIST.map(k => { const r = RELS.find(x => x.k === k); return pill("rel", r.k, r.l, roleKey(A.rel) === r.k); })],
       age:["Quel âge a " + (A.rel ? rel().pos : "cette personne") + NB + "?", "Une fourchette suffit.", AGE.map(x => pill("age", x.k, x.l, A.age === x.k))],
-      close:[closeQ + NB + "?", "Ça nous aide à choisir un cadeau ni trop intime ni trop neutre.", CLOSE.map(c => pill("close", c.k, c.l, A.close === c.k))]
+      close:["Tu le ou la connais comment" + NB + "?", "Ça nous aide à choisir un cadeau ni trop intime ni trop neutre.", CLOSE.map(c => pill("close", c.k, c.l, A.close === c.k))]
     }[sub];
     return `
     <h2 class="q-title">${Q ? Q[0] : "C'est pour qui" + NB + "?"}</h2>
@@ -943,7 +943,7 @@ const STEPS = [
    view:() => `
     <h2 class="q-title">C'est pour quelle occasion${NB}?</h2>
     <p class="q-help">${A.occ ? "Le délai nous dit si un cadeau fait main ou personnalisé a le temps d'arriver." : "Les occasions proposées dépendent de la personne choisie."}</p>
-    <div class="block" role="group" aria-label="Occasion"><div class="pills">${occs().map(o => pill("occ", o.k, o.l(A.rel), A.occ === o.k)).join("")}</div></div>
+    <div class="block" role="group" aria-label="Occasion"><div class="pills">${occPills()}</div></div>
     ${blk("del", "Et c'est pour quand" + NB + "?", `<div class="pills">${DEL.map(d => pill("del", d.k, d.l, A.del === d.k)).join("")}</div>`, !!A.occ)}`},
   {auto:false, valid:() => (A.th.length > 0 || A.nsp) && (!A.th.includes("animaux") || A.pet),
    sum:() => (A.nsp ? "Goûts : je ne sais pas trop" : list(TH.filter(t => A.th.includes(t.k)).map(t => t.l))) + (A.pet ? ", " + lc(PET.find(x => x.k === A.pet).l) : "") + (A.x.length ? ", " + A.x.length + " à éviter" : ""),
@@ -1009,11 +1009,11 @@ panel.addEventListener("click", e => {
   const key = b.dataset.key;
   if (b.dataset.set){
     const set = b.dataset.set, v = ["age","close","del","bud","time"].includes(set) ? +b.dataset.v : b.dataset.v;
-    const NEXT = {gender:"rel", rel:"age", age:"close", occ:"del", fx:"bud", bud:"time"};
+    const NEXT = {rel:"age", age:"close", occ:"del", fx:"bud", bud:"time"};
     if (A[set] === null && NEXT[set]) fresh = NEXT[set];
     A[set] = v;
-    if (["gender","rel","age","close"].includes(set)) A.__edit = null;
-    if (set === "gender" && A.rel) A.rel = roleKey(A.rel, v);
+    if (["rel","age","close"].includes(set)) A.__edit = null;
+    if (b.dataset.conv) A.rel = b.dataset.conv;
     if (set === "rel" && A.occ && !occs().some(o => o.k === A.occ)) A.occ = null;
   } else if (b.dataset.toggle){
     if (b.getAttribute("aria-disabled") === "true") return;
@@ -1263,7 +1263,7 @@ function showIdea(reveal = false){
 
 function edit(){ $("#quiz").hidden = false; results.hidden = true; lastStep = -1; go(0); $("#quiz").scrollIntoView({behavior:"smooth"}); }
 function restart(){
-  Object.assign(A, {__edit:null, gender:null, rel:null, age:null, close:null, occ:null, del:null, th:[], nsp:false, pet:null, prof:null, x:[], fx:null, bud:null, time:null, __reached:0});
+  Object.assign(A, {__edit:null, rel:null, age:null, close:null, occ:null, del:null, th:[], nsp:false, pet:null, prof:null, x:[], fx:null, bud:null, time:null, __reached:0});
   edit();
 }
 
@@ -1341,7 +1341,7 @@ const EXAMPLES = [
   {rel:"pere", age:3, occ:"retraite", del:3, th:["musique"], prof:"cocon", fx:"epater", bud:5, time:0},
   {rel:"enfance", age:2, occ:"rien", del:2, th:["jeux"], prof:"souvenirs", fx:"emotion", bud:1, time:2}
 ];
-const BLANK = {__edit:null, gender:null, rel:null, age:null, close:null, occ:null, del:null, th:[], nsp:false, pet:null, prof:null, x:[], fx:null, bud:null, time:null};
+const BLANK = {__edit:null, rel:null, age:null, close:null, occ:null, del:null, th:[], nsp:false, pet:null, prof:null, x:[], fx:null, bud:null, time:null};
 let exStart = 0;
 function withAnswers(ex, fn){
   const saved = JSON.parse(JSON.stringify(A));
