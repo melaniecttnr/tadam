@@ -44,7 +44,7 @@ Un site qui trouve une idée cadeau pour un proche en 5 questions. Les idées vi
 ## Charte et design
 
 - **Logo** : « Tadam » en rouge foncé, point d'exclamation en orange, Bricolage Grotesque en gras (800). Validé par Mélanie, à ne pas modifier.
-- **Fond de page** : blanc `#FFFFFF` (changé le 12 octobre 2026, avant : beige `#F3E3CE`). Cartes : `#FCF4E8`. Fond secondaire : `#F6EAD9`. Les pages légales ont aussi le fond blanc.
+- **Fond de page** : blanc cassé chaud `#FFF8EE` (changé le 12 octobre 2026, avant : beige `#F3E3CE`). Cartes : blanc `#FFFFFF`. Fond secondaire : `#F7E9D5`. Traits : `#EBD7BC`. Les pages légales suivent la même palette.
 - **Rouge foncé** `#8E1B14` : bloc des questions, boutons, titres. Rouge profond `#6C110B`, rouge survol `#A92A1F`.
 - **Orange** `#F07A22` et **jaune** `#FFC53D` : petites touches uniquement (point d'exclamation, progression, puces).
 - **Textes** : brun très foncé `#2A140E`, secondaire `#6B4A3C`, beige `#F7E6CF` sur le rouge. Traits `#DCC1A2`.
