@@ -203,7 +203,7 @@ footer .logo{font-size:1.3rem}
 .dialog ul{margin:14px 0; padding:0; list-style:none; display:grid; gap:8px}
 .dialog li{display:grid; grid-template-columns:18px minmax(0,1fr); gap:10px}
 .dialog li::before{content:""; width:10px; height:10px; margin-top:7px; border-radius:2px; background:var(--orange); transform:rotate(45deg)}
-.dialog .note{background:var(--bg); border-radius:14px; padding:12px 14px; font-size:.9rem; color:var(--ink-soft); margin:16px 0}
+.dialog .note{display:block; background:var(--bg); border-radius:14px; padding:12px 14px; font-size:.9rem; color:var(--ink-soft); margin:16px 0}
 .dialog .row{display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end}
 .btn-off{background:var(--red); color:var(--cream); opacity:.5; cursor:not-allowed}
 
@@ -294,6 +294,19 @@ footer .logo{font-size:1.3rem}
 @media (prefers-reduced-motion: reduce){
   *,*::before,*::after{animation:none!important; transition:none!important}
 }
+.diy-buy{display:grid; grid-template-columns:minmax(0,200px) minmax(0,1fr); gap:18px; align-items:center; background:var(--paper); border:1px solid var(--line); border-radius:18px; padding:16px}
+.diy-art{width:100%; height:auto; display:block}
+.db-txt{display:grid; gap:8px; justify-items:start}
+.db-txt strong{font:800 1.2rem/1.1 var(--display); letter-spacing:-.02em}
+.db-txt span{color:var(--ink-soft); font-size:.93rem}
+.plan{display:grid; gap:8px; background:var(--bg); border-radius:14px; padding:14px 16px}
+.plan h4,.free-h{margin:0; font:700 1rem/1.2 var(--display)}
+.plan ol{margin:0; padding:0; list-style:none; display:grid; gap:8px}
+.plan li{display:grid; grid-template-columns:minmax(0,120px) minmax(0,1fr); gap:10px; font-size:.93rem}
+.plan li b{color:var(--red)}
+.kp-smp{font-style:italic}
+.dialog ul.trust{margin:12px 0}
+@media (max-width:560px){ .diy-buy{grid-template-columns:minmax(0,1fr)} .plan li{grid-template-columns:minmax(0,1fr); gap:2px} }
 </style>
 </head>
 <body>
@@ -792,6 +805,63 @@ const MAT = {
 
 /* Valeurs par défaut */
 IDEAS.forEach(it => { it.r ??= ["all"]; it.o ??= ["all"]; it.a ??= [0,4]; it.p ??= [0,0,0]; it.x ??= []; it.mat ??= MAT[it.n] || []; });
+/* Contenu des kits : une base écrite et relue par Tadam. L'IA ne fait que remplir les créneaux de personnalisation
+   (le proche, ses goûts, l'effet voulu), elle n'invente pas le kit. Ici : les 3 DIY phares, extraits personnalisés en dur pour le prototype. */
+const SCENE = {
+  cuisine:["Dans la cuisine","un bocal d'épices sans étiquette","reconnaître l'épice à l'odeur"],
+  voyage:["Près de la carte du monde","une carte postale sans adresse","retrouver la ville d'où elle vient"],
+  jeux:["Autour de la table de jeu","un dé truqué","deviner quelle face manque"],
+  lecture:["Dans la bibliothèque","un livre dont une page est cornée","lire la phrase soulignée à l'envers"],
+  musique:["Près de la platine","un disque sans pochette","reconnaître le morceau en trois notes"],
+  cinema:["Devant la télé","un ticket de cinéma déchiré","retrouver le film d'après sa réplique"],
+  nature:["Près des plantes","un pot dont l'étiquette a été échangée","deviner la plante à son feuillage"],
+  animaux:["Près du panier","une gamelle avec un code gravé","retrouver à qui appartiennent les pattes dessinées"]
+};
+const SCENE_DEF = ["Dans le salon","une enveloppe cachée sous un coussin","retrouver votre blague qui dure depuis des années"];
+const DIYX = {
+  "Un escape game maison sur mesure": {
+    art:"lock", lvl:"Facile", promise:"Une heure d'énigmes écrites sur vos souvenirs, avec le vrai cadeau au bout.",
+    sample: c => ({lab:"Énigme 1 sur 12", text:`${c.scene[0]}, ${c.scene[1]} garde le premier code. Pour ouvrir l'enveloppe n°1, ${c.pos} doit ${c.scene[2]}. Si ça coince, l'indice de secours est glissé au dos de la fiche.`})
+  },
+  "Le livre de recettes de la famille": {
+    art:"book", lvl:"Moyen", promise:"Les recettes de toute la famille, racontées par ceux qui les font, dans un livre à garder.",
+    sample: c => ({lab:"Page 3, la fiche à faire remplir", text:`Le plat qu'on réclame à chaque fête chez ${c.pos}. Les questions sont déjà écrites : « Qui te l'a appris ? », « Quel jour l'as-tu fait pour la première fois ? », « Quel est ton petit secret ? ». Il ne reste qu'à les poser, au téléphone ou autour d'un café.`})
+  },
+  "Le bocal des 52 raisons": {
+    art:"jar", lvl:"Facile", promise:"Une raison par semaine pendant un an, à piocher dans un bocal.",
+    sample: c => ({lab:"Raisons n°1 à 3", text:c.fx === "rire"
+      ? "« Parce que tu me fais rire même quand je boude. » « Parce que ta façon de raconter une histoire est meilleure que l'histoire. » « Parce que tu as toujours une bêtise en réserve. »"
+      : c.fx === "utile"
+      ? "« Parce que tu penses à tout avant moi. » « Parce que tu sais toujours quoi faire quand ça va mal. » « Parce qu'avec toi, les petites choses du quotidien deviennent plus simples. »"
+      : "« Parce que tu sais toujours quoi dire quand rien ne va. » « Parce qu'avec toi, je me sens à ma place. » « Parce que tu te souviens des détails qui comptent pour moi. »"})
+  }
+};
+IDEAS.forEach(it => { if (DIYX[it.n]) it.pro = DIYX[it.n]; });
+const kitCtx = () => {
+  const th = A.th.find(t => SCENE[t]);
+  return {pos:rel().pos, fx:A.fx, scene:SCENE[th] || SCENE_DEF};
+};
+const diyArt = it => {
+  const ART = {
+    lock:`<rect x="88" y="52" width="44" height="40" rx="7" fill="#8E1B14"/><path d="M97 52V40a13 13 0 0 1 26 0v12" fill="none" stroke="#2A140E" stroke-width="7" stroke-linecap="round"/><circle cx="110" cy="69" r="5" fill="#FCF4E8"/><rect x="108" y="71" width="4" height="10" rx="2" fill="#FCF4E8"/><rect x="26" y="62" width="40" height="28" rx="4" fill="#FFC53D" transform="rotate(-8 46 76)"/><rect x="156" y="60" width="40" height="28" rx="4" fill="#F07A22" transform="rotate(7 176 74)"/>`,
+    book:`<path d="M110 40c-14-8-38-8-56-2v56c18-6 42-6 56 2z" fill="#FCF4E8" stroke="#8E1B14" stroke-width="4" stroke-linejoin="round"/><path d="M110 40c14-8 38-8 56-2v56c-18-6-42-6-56 2z" fill="#FCF4E8" stroke="#8E1B14" stroke-width="4" stroke-linejoin="round"/><path d="M68 56h30M68 68h30M122 56h30M122 68h30" stroke="#DCC1A2" stroke-width="4" stroke-linecap="round"/><circle cx="160" cy="34" r="9" fill="#F07A22"/>`,
+    jar:`<rect x="82" y="30" width="56" height="12" rx="4" fill="#8E1B14"/><path d="M88 42h44l6 12v34a10 10 0 0 1-10 10H92a10 10 0 0 1-10-10V54z" fill="#FCF4E8" stroke="#8E1B14" stroke-width="4" stroke-linejoin="round"/><rect x="94" y="62" width="14" height="18" rx="2" fill="#FFC53D" transform="rotate(-12 101 71)"/><rect x="110" y="68" width="14" height="18" rx="2" fill="#F07A22" transform="rotate(10 117 77)"/><rect x="102" y="76" width="14" height="14" rx="2" fill="#E8A09A" transform="rotate(-4 109 83)"/>`,
+    tag:`<path d="M70 38h60l22 22-22 22H70z" fill="#FFC53D" transform="rotate(-6 110 60)"/><circle cx="82" cy="60" r="5" fill="#EAD4B8"/><path d="M96 52h30M96 66h22" stroke="#8E1B14" stroke-width="5" stroke-linecap="round" transform="rotate(-6 110 60)"/>`
+  };
+  return `<svg class="diy-art" viewBox="0 0 220 120" role="img" aria-label="Illustration : ${it.n}"><rect width="220" height="120" rx="14" fill="#EAD4B8"/>${ART[it.pro?.art || "tag"]}</svg>`;
+};
+/* Plan à rebours selon le délai choisi à l'étape 2 */
+const planHTML = it => {
+  const when = {1:["Aujourd'hui","Demain","Le jour J"], 2:["Aujourd'hui","Dans 3 ou 4 jours","La veille"], 3:["Cette semaine","Dans une dizaine de jours","La veille"]}[A.del] || ["Aujourd'hui","Bientôt","La veille"];
+  const dur = it.tm === 1 ? "une ou deux heures" : it.tm === 2 ? "un après-midi" : "un week-end";
+  const first = A.del === 1 ? "Reçois ton kit, puis commande le matériel en livraison rapide ou prends-le en magasin." : "Reçois ton kit et commande le matériel.";
+  return `<div class="plan"><h4>Ton plan pour être prêt à temps</h4><ol>
+    <li><b>${when[0]}</b><span>${first}</span></li>
+    <li><b>${when[1]}</b><span>Réserve ${dur} pour le réaliser, en suivant le pas à pas du kit.</span></li>
+    <li><b>${when[2]}</b><span>Emballe, relis le petit mot, et c'est prêt.</span></li>
+  </ol></div>`;
+};
+
 /* Profils, effets et caractère intime déduits de la personnalité de l'idée (à remplacer par des colonnes Airtable) */
 IDEAS.forEach(it => {
   const [c, v, o] = it.p;
@@ -1013,11 +1083,14 @@ function ideaHTML(it){
   const TYPE = {buy:["À acheter",""], perso:["Personnalisé","perso"], diy:["À faire soi-même","diy"]}[it.t];
   const facts = [
     ["Budget", (it.t === "diy" ? "Matériel : " : "") + BUD[it.b-1].l.toLowerCase()],
-    ...(it.t === "diy" ? [["Temps", TIME[it.tm].l]] : []),
+    ...(it.t === "diy" ? [["Temps", TIME[it.tm].l], ["Difficulté", it.pro?.lvl || "Facile"], ["Kit", it.kit.price + NB + "€, paiement unique"]] : []),
     ["Délai", {buy:"Souvent livré en quelques jours", perso:"Prévois 1 à 2 semaines", diy:"Kit reçu en quelques minutes"}[it.t]]
   ];
   const main = it.t === "diy"
-    ? `<ol class="how-to">${it.steps.map(s => `<li>${s}</li>`).join("")}</ol>
+    ? `<div class="diy-buy">${diyArt(it)}<div class="db-txt"><strong>Ton kit, prêt en quelques minutes</strong><span>Écrit pour ${rel().pos} à partir de tes réponses. Tu l'imprimes et tu suis le pas à pas.</span><button class="btn btn-red" data-kit>Recevoir mon kit, ${it.kit.price}${NB}€</button><span class="aff">Paiement unique, sans abonnement</span></div></div>
+       ${planHTML(it)}
+       <h4 class="free-h">Ou lance-toi seul, voici les grandes étapes</h4>
+       <ol class="how-to">${it.steps.map(s => `<li>${s}</li>`).join("")}</ol>
        ${it.mat.length ? `<div class="mat"><h4>Le matériel</h4><ul>${it.mat.map(m => `<li><span>${m[0]}</span><a href="${amazon(m[1])}" target="_blank" rel="sponsored noopener">Voir sur Amazon</a></li>`).join("")}</ul><span class="aff">Liens partenaires Amazon</span></div>` : ""}`
     : `<div class="cta">
          <a class="btn btn-red" href="${it.t === "buy" ? amazon(it.q) : etsy(it.q)}" target="_blank" rel="sponsored noopener">${it.t === "buy" ? "Voir les modèles" : "Voir les créations"}</a>
@@ -1029,7 +1102,7 @@ function ideaHTML(it){
       <span class="fmt">${KIT_FMT[it.kit.f]}</span>
       <p>Tout est préparé pour ${rel().pos}, à partir de tes réponses.</p>
       <ul>${it.kit.c.slice(0,3).map(c => `<li>${c}</li>`).join("")}</ul>
-      <button class="btn btn-cream" id="kit-open">Voir tout le contenu du kit</button>
+      <button class="btn btn-cream" data-kit>Voir le contenu et un extrait</button>
     </div>` : "");
   return `<article class="idea anim" aria-live="polite">
     <div class="idea-main">
@@ -1139,7 +1212,7 @@ function showIdea(reveal = false){
   const last = cur >= picks.length - 1;
   $("#another").textContent = last ? "Ajuster mes critères" : "Cette idée ne me plaît pas, une autre";
   $("#first").hidden = !last || picks.length < 2;
-  $("#kit-open")?.addEventListener("click", e => openKit(it, e.currentTarget));
+  document.querySelectorAll("[data-kit]").forEach(b => b.addEventListener("click", e => openKit(it, e.currentTarget)));
   const c = $(".cover");
   if (c){
     setTimeout(() => { c.classList.add("open"); confetti(); }, 700);
@@ -1159,6 +1232,7 @@ let lastFocus = null;
 function openKit(it, from){
   lastFocus = from;
   const o = occNow();
+  const smp = it.pro?.sample?.(kitCtx());
   $("#dialog").className = "dialog wide";
   $("#dialog").innerHTML = `
     <div>
@@ -1168,9 +1242,8 @@ function openKit(it, from){
         <h3>${it.n}</h3>
         <p class="kp-for">Préparé pour ${rel().pos}, ${o.ph(A.rel)}.</p>
         <div class="kp-sec">Au sommaire</div>
-        <ol>${it.kit.c.map(c => `<li>${c}</li>`).join("")}</ol>
-        <div class="kp-sec">Pour commencer</div>
-        <p>${it.steps[0]}</p>
+        <ol>${it.kit.c.slice(0,3).map(c => `<li>${c}</li>`).join("")}<li>Et ${it.kit.c.length - 3} autres éléments</li></ol>
+        ${smp ? `<div class="kp-sec">Extrait de ton kit : ${smp.lab}</div><p class="kp-smp">${smp.text}</p>` : `<div class="kp-sec">Pour commencer</div><p>${it.steps[0]}</p>`}
         <div class="kp-foot">Page 1</div>
       </div>
     </div>
@@ -1178,8 +1251,9 @@ function openKit(it, from){
       <span class="chip diy">Kit clé en main</span>
       <h2 id="dlg-title">${it.n}</h2>
       <p>Un kit complet, préparé pour ${rel().pos} à partir de tes réponses. Tu le reçois par e-mail en quelques minutes.</p>
-      <p><strong>Format :</strong> ${KIT_FMT[it.kit.f].toLowerCase()}.</p>
+      <p><strong>Format :</strong> ${lc(KIT_FMT[it.kit.f])}.</p>
       <ul>${it.kit.c.map(c => `<li>${c}</li>`).join("")}</ul>
+      <ul class="trust"><li>Reçu par e-mail en quelques minutes, sans compte à créer</li><li>PDF au format A4 prêt à imprimer, avec une liste de courses à cocher</li><li>Corrigé ou remboursé si le kit ne correspond pas à sa description</li></ul>
       <label class="consent-k"><input type="checkbox" id="kit-ok"><span>Je demande à recevoir le kit tout de suite et je reconnais perdre mon droit de rétractation (<a href="cgv.html">conditions de vente</a>).</span></label>
       <div class="note">Paiement unique de ${it.kit.price}${NB}€, sans abonnement. Le paiement en ligne sera activé dans la prochaine version du site.</div>
       <div class="row">
