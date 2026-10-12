@@ -307,6 +307,11 @@ footer .logo{font-size:1.3rem}
 .kp-smp{font-style:italic}
 .dialog ul.trust{margin:12px 0}
 @media (max-width:560px){ .diy-buy{grid-template-columns:minmax(0,1fr)} .plan li{grid-template-columns:minmax(0,1fr); gap:2px} }
+.duo{display:inline-flex; border:1.5px solid var(--cream-line); border-radius:10px; overflow:hidden}
+.duo .pill{border:0; border-radius:0; flex:0 0 auto}
+.duo .pill + .pill{border-left:1.5px solid var(--cream-line)}
+.duo .pill:hover{background:rgba(255,255,255,.1)}
+.duo .pill[aria-pressed="true"]:hover{background:var(--cream)}
 </style>
 </head>
 <body>
@@ -402,6 +407,18 @@ const REL = [
     {k:"boss", l:"Mon ou ma boss", pos:"ton ou ta boss", grp:["travail"]}]}
 ];
 const RELS = REL.flatMap(g => g.items);
+/* Les paires féminin / masculin partagent un même cadre à deux moitiés : moins de cases, un seul clic */
+const DUO = {amie:"ami", mere:"pere", soeur:"frere", gm:"gp", bm:"bp", colf:"colm"};
+const relPills = g => {
+  const byK = Object.fromEntries(g.items.map(r => [r.k, r])), done = new Set();
+  return g.items.map(r => {
+    if (done.has(r.k)) return "";
+    const b = DUO[r.k] && byK[DUO[r.k]];
+    if (!b) return pill("rel", r.k, r.l, A.rel === r.k);
+    done.add(b.k);
+    return `<span class="duo">${pill("rel", r.k, r.l, A.rel === r.k)}${pill("rel", b.k, b.l, A.rel === b.k)}</span>`;
+  }).join("");
+};
 const AGE = [{k:0,l:"Moins de 18 ans"},{k:1,l:"18 à 30 ans"},{k:2,l:"30 à 50 ans"},{k:3,l:"50 à 70 ans"},{k:4,l:"Plus de 70 ans"}];
 
 /* 2. Occasion et délai */
@@ -898,7 +915,7 @@ const STEPS = [
    view:() => `
     <h2 class="q-title">C'est pour qui${NB}?</h2>
     <p class="q-help">${!A.rel ? "Choisis la personne, on affine juste après." : A.age === null ? "Et quel âge a " + rel().pos + NB + "?" : askClose() && !A.close ? "Et tu connais " + rel().pos + " comment" + NB + "?" : "C'est noté."}</p>
-    ${REL.map(g => `<div class="block" role="group" aria-label="${g.g}"><span class="lbl">${g.g}</span><div class="pills">${g.items.map(r => pill("rel", r.k, r.l, A.rel === r.k)).join("")}</div></div>`).join("")}
+    ${REL.map(g => `<div class="block" role="group" aria-label="${g.g}"><span class="lbl">${g.g}</span><div class="pills">${relPills(g)}</div></div>`).join("")}
     ${blk("age", "Son âge", `<div class="pills">${AGE.map(a => pill("age", a.k, a.l, A.age === a.k)).join("")}</div>`, !!A.rel)}
     ${blk("close", "Tu le ou la connais", `<div class="pills">${CLOSE.map(c => pill("close", c.k, c.l, A.close === c.k)).join("")}</div>`, !!A.rel && A.age !== null && askClose())}`},
   {auto:true, gate:"occ", valid:() => A.occ && A.del,
