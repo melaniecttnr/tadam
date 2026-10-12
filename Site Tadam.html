@@ -421,9 +421,7 @@ const ROLE_SETS = [["bff","bffm","bffn"],["amie","ami","amin"],["enff","enfance"
 const GI = {f:0, m:1, n:2};
 const gender = () => A.gender || RELS.find(r => r.k === A.rel)?.gd || null;
 const roleKey = (k, g) => { const set = ROLE_SETS.find(x => x.includes(k)); return set ? set[GI[g]] : k; };
-const relPills = (gd, grp) => grp.items
-  .map(r => roleKey(r.k, gd)).filter((k, i, arr) => arr.indexOf(k) === i)
-  .map(k => { const r = RELS.find(x => x.k === k); return pill("rel", r.k, r.l, A.rel === r.k); }).join("");
+
 const AGE = [{k:0,l:"Moins de 18 ans"},{k:1,l:"18 à 30 ans"},{k:2,l:"30 à 50 ans"},{k:3,l:"50 à 70 ans"},{k:4,l:"Plus de 70 ans"}];
 
 /* 2. Occasion et délai */
@@ -917,13 +915,29 @@ const STEP_NAMES = ["Qui", "Quand", "Goûts", "Style", "Effet"];
 const STEPS = [
   {auto:true, gate:"rel", valid:() => A.rel && A.age !== null && (!askClose() || A.close),
    sum:() => cap(rel().pos) + ", " + AGE[A.age].l.toLowerCase(),
-   view:() => `
-    <h2 class="q-title">C'est pour qui${NB}?</h2>
-    <p class="q-help">${!gender() ? "Commence par dire si c'est une femme, un homme, ou si tu préfères rester neutre." : !A.rel ? "Et quel rôle a cette personne pour toi" + NB + "?" : A.age === null ? "Et quel âge a " + rel().pos + NB + "?" : askClose() && !A.close ? "Et tu connais " + rel().pos + " comment" + NB + "?" : "C'est noté."}</p>
-    <div class="block" role="group" aria-label="Genre"><div class="pills">${GENDER.map(g => pill("gender", g.k, g.l, gender() === g.k)).join("")}</div></div>
-    ${gender() ? REL.map(g => blk("rel-" + g.g, g.g, `<div class="pills">${relPills(gender(), g)}</div>`)).join("") : ""}
-    ${blk("age", "Son âge", `<div class="pills">${AGE.map(a => pill("age", a.k, a.l, A.age === a.k)).join("")}</div>`, !!A.rel)}
-    ${blk("close", {f:"Tu la connais", m:"Tu le connais", n:"Tu le ou la connais"}[gender()] || "Tu le ou la connais", `<div class="pills">${CLOSE.map(c => pill("close", c.k, c.l, A.close === c.k)).join("")}</div>`, !!A.rel && A.age !== null && askClose())}`},
+   view:() => {
+    /* Une seule sous-question à la fois. Les réponses déjà données restent en petites pastilles, cliquables pour les modifier. */
+    const next = !gender() ? "gender" : !A.rel ? "rel" : A.age === null ? "age" : askClose() && !A.close ? "close" : "done";
+    const sub = A.__edit || next;
+    const closeQ = {f:"Tu la connais comment", m:"Tu le connais comment", n:"Tu le ou la connais comment"}[gender()] || "Tu le ou la connais comment";
+    const given = [
+      ["gender", gender() && GENDER.find(g => g.k === gender()).l],
+      ["rel", A.rel && cap(rel().l)],
+      ["age", A.age !== null && AGE[A.age].l],
+      ["close", askClose() && A.close && CLOSE.find(c => c.k === A.close).l]
+    ].filter(x => x[1] && x[0] !== sub);
+    const Q = {
+      gender:["C'est pour qui" + NB + "?", "Une femme, un homme, ou autre.", GENDER.map(g => pill("gender", g.k, g.l, gender() === g.k))],
+      rel:["Qui est-ce pour toi" + NB + "?", "Choisis son rôle dans ta vie.", [...new Set(REL.flatMap(g => g.items.map(r => roleKey(r.k, gender() || "n"))))].map(k => { const r = RELS.find(x => x.k === k); return pill("rel", r.k, r.l, A.rel === r.k); })],
+      age:["Quel âge a " + (A.rel ? rel().pos : "cette personne") + NB + "?", "Une fourchette suffit.", AGE.map(x => pill("age", x.k, x.l, A.age === x.k))],
+      close:[closeQ + NB + "?", "Ça nous aide à choisir un cadeau ni trop intime ni trop neutre.", CLOSE.map(c => pill("close", c.k, c.l, A.close === c.k))]
+    }[sub];
+    return `
+    <h2 class="q-title">${Q ? Q[0] : "C'est pour qui" + NB + "?"}</h2>
+    <p class="q-help">${Q ? Q[1] : "C'est noté."}</p>
+    ${Q ? `<div class="block ${fresh === sub ? "q-anim" : ""}" role="group" aria-label="${Q[0]}"><div class="pills">${Q[2].join("")}</div></div>` : ""}
+    ${given.length ? `<div class="answers sub">${given.map(g => `<button data-sub="${g[0]}" title="Modifier">${g[1]}</button>`).join("")}</div>` : ""}`;
+   }},
   {auto:true, gate:"occ", valid:() => A.occ && A.del,
    sum:() => occNow().l(A.rel) + ", " + DEL[A.del-1].l.toLowerCase(),
    view:() => `
@@ -977,7 +991,7 @@ function render(focusKey){
 function go(i){
   clearTimeout(timer);
   if (i >= STEPS.length) return showResults();
-  step = i; A.__reached = Math.max(A.__reached || 0, i);
+  step = i; A.__edit = null; A.__reached = Math.max(A.__reached || 0, i);
   render();
   panel.querySelector(".pill, .tile, .seg button")?.focus({preventScroll:true});
   const r = panel.getBoundingClientRect();
@@ -988,15 +1002,17 @@ panel.addEventListener("click", e => {
   const b = e.target.closest("button");
   if (!b || b.disabled) return;
   const s = STEPS[step];
+  if (b.dataset.sub){ A.__edit = b.dataset.sub; render(); return; }
   if (b.dataset.goto){ go(+b.dataset.goto); return; }
   if (b.id === "back"){ go(step - 1); return; }
   if (b.id === "next"){ go(step + 1); return; }
   const key = b.dataset.key;
   if (b.dataset.set){
     const set = b.dataset.set, v = ["age","close","del","bud","time"].includes(set) ? +b.dataset.v : b.dataset.v;
-    const NEXT = {gender:"rel-Amis", rel:"age", age:"close", occ:"del", fx:"bud", bud:"time"};
+    const NEXT = {gender:"rel", rel:"age", age:"close", occ:"del", fx:"bud", bud:"time"};
     if (A[set] === null && NEXT[set]) fresh = NEXT[set];
     A[set] = v;
+    if (["gender","rel","age","close"].includes(set)) A.__edit = null;
     if (set === "gender" && A.rel) A.rel = roleKey(A.rel, v);
     if (set === "rel" && A.occ && !occs().some(o => o.k === A.occ)) A.occ = null;
   } else if (b.dataset.toggle){
@@ -1247,7 +1263,7 @@ function showIdea(reveal = false){
 
 function edit(){ $("#quiz").hidden = false; results.hidden = true; lastStep = -1; go(0); $("#quiz").scrollIntoView({behavior:"smooth"}); }
 function restart(){
-  Object.assign(A, {gender:null, rel:null, age:null, close:null, occ:null, del:null, th:[], nsp:false, pet:null, prof:null, x:[], fx:null, bud:null, time:null, __reached:0});
+  Object.assign(A, {__edit:null, gender:null, rel:null, age:null, close:null, occ:null, del:null, th:[], nsp:false, pet:null, prof:null, x:[], fx:null, bud:null, time:null, __reached:0});
   edit();
 }
 
@@ -1325,7 +1341,7 @@ const EXAMPLES = [
   {rel:"pere", age:3, occ:"retraite", del:3, th:["musique"], prof:"cocon", fx:"epater", bud:5, time:0},
   {rel:"enfance", age:2, occ:"rien", del:2, th:["jeux"], prof:"souvenirs", fx:"emotion", bud:1, time:2}
 ];
-const BLANK = {gender:null, rel:null, age:null, close:null, occ:null, del:null, th:[], nsp:false, pet:null, prof:null, x:[], fx:null, bud:null, time:null};
+const BLANK = {__edit:null, gender:null, rel:null, age:null, close:null, occ:null, del:null, th:[], nsp:false, pet:null, prof:null, x:[], fx:null, bud:null, time:null};
 let exStart = 0;
 function withAnswers(ex, fn){
   const saved = JSON.parse(JSON.stringify(A));
