@@ -307,11 +307,6 @@ footer .logo{font-size:1.3rem}
 .kp-smp{font-style:italic}
 .dialog ul.trust{margin:12px 0}
 @media (max-width:560px){ .diy-buy{grid-template-columns:minmax(0,1fr)} .plan li{grid-template-columns:minmax(0,1fr); gap:2px} }
-.duo{display:inline-flex; border:1.5px solid var(--cream-line); border-radius:10px; overflow:hidden}
-.duo .pill{border:0; border-radius:0; flex:0 0 auto}
-.duo .pill + .pill{border-left:1.5px solid var(--cream-line)}
-.duo .pill:hover{background:rgba(255,255,255,.1)}
-.duo .pill[aria-pressed="true"]:hover{background:var(--cream)}
 </style>
 </head>
 <body>
@@ -383,42 +378,52 @@ footer .logo{font-size:1.3rem}
 const AMAZON_TAG = "";
 const NB = " ";
 
-/* 1. Pour qui */
+/* 1. Pour qui : d'abord le genre (femme, homme, autre), puis le rôle. Les libellés du rôle s'adaptent, la version neutre évite tout genre.
+   gd : f, m ou n. Les clés existantes gardent leur sens pour le matching, les neutres s'appuient sur les groupes (grp). */
 const REL = [
   {g:"Amis", items:[
-    {k:"bff", l:"Ma meilleure amie", pos:"ta meilleure amie", grp:["amis"]},
-    {k:"amie", l:"Une amie", pos:"ton amie", grp:["amis"]},
-    {k:"ami", l:"Un ami", pos:"ton ami", grp:["amis"]},
-    {k:"enfance", l:"Un ami d'enfance", pos:"ton ami d'enfance", grp:["amis"]}]},
+    {k:"bff", gd:"f", l:"Ma meilleure amie", pos:"ta meilleure amie", grp:["amis"]},
+    {k:"bffm", gd:"m", l:"Mon meilleur ami", pos:"ton meilleur ami", grp:["amis"]},
+    {k:"bffn", gd:"n", l:"Un meilleur ami ou une meilleure amie", pos:"ton meilleur ami ou ta meilleure amie", grp:["amis"]},
+    {k:"amie", gd:"f", l:"Une amie", pos:"ton amie", grp:["amis"]},
+    {k:"ami", gd:"m", l:"Un ami", pos:"ton ami", grp:["amis"]},
+    {k:"amin", gd:"n", l:"Un ami ou une amie", pos:"ton ami ou ton amie", grp:["amis"]},
+    {k:"enff", gd:"f", l:"Une amie d'enfance", pos:"ton amie d'enfance", grp:["amis"]},
+    {k:"enfance", gd:"m", l:"Un ami d'enfance", pos:"ton ami d'enfance", grp:["amis"]},
+    {k:"enfn", gd:"n", l:"Un ami ou une amie d'enfance", pos:"ton ami ou ton amie d'enfance", grp:["amis"]}]},
   {g:"Amour", items:[
-    {k:"couple", l:"Ma moitié", pos:"ta moitié", grp:["amour"]}]},
+    {k:"couple", gd:"n", l:"Ma moitié", pos:"ta moitié", grp:["amour"]}]},
   {g:"Famille", items:[
-    {k:"mere", l:"Ma mère", pos:"ta mère", grp:["famille","parents"]},
-    {k:"pere", l:"Mon père", pos:"ton père", grp:["famille","parents"]},
-    {k:"soeur", l:"Ma sœur", pos:"ta sœur", grp:["famille","fratrie"]},
-    {k:"frere", l:"Mon frère", pos:"ton frère", grp:["famille","fratrie"]},
-    {k:"gm", l:"Ma grand-mère", pos:"ta grand-mère", grp:["famille","grands"]},
-    {k:"gp", l:"Mon grand-père", pos:"ton grand-père", grp:["famille","grands"]},
-    {k:"bm", l:"Ma belle-mère", pos:"ta belle-mère", grp:["famille","parents"]},
-    {k:"bp", l:"Mon beau-père", pos:"ton beau-père", grp:["famille","parents"]}]},
+    {k:"mere", gd:"f", l:"Ma mère", pos:"ta mère", grp:["famille","parents"]},
+    {k:"pere", gd:"m", l:"Mon père", pos:"ton père", grp:["famille","parents"]},
+    {k:"parent", gd:"n", l:"Mon parent", pos:"ton parent", grp:["famille","parents"]},
+    {k:"soeur", gd:"f", l:"Ma sœur", pos:"ta sœur", grp:["famille","fratrie"]},
+    {k:"frere", gd:"m", l:"Mon frère", pos:"ton frère", grp:["famille","fratrie"]},
+    {k:"fratn", gd:"n", l:"Mon frère ou ma sœur", pos:"ton frère ou ta sœur", grp:["famille","fratrie"]},
+    {k:"gm", gd:"f", l:"Ma grand-mère", pos:"ta grand-mère", grp:["famille","grands"]},
+    {k:"gp", gd:"m", l:"Mon grand-père", pos:"ton grand-père", grp:["famille","grands"]},
+    {k:"grandp", gd:"n", l:"Mon grand-parent", pos:"ton grand-parent", grp:["famille","grands"]},
+    {k:"bm", gd:"f", l:"Ma belle-mère", pos:"ta belle-mère", grp:["famille","parents"]},
+    {k:"bp", gd:"m", l:"Mon beau-père", pos:"ton beau-père", grp:["famille","parents"]},
+    {k:"beaup", gd:"n", l:"Mon beau-parent", pos:"ton beau-parent", grp:["famille","parents"]}]},
   {g:"Travail", items:[
-    {k:"colf", l:"Une collègue", pos:"ta collègue", grp:["travail"]},
-    {k:"colm", l:"Un collègue", pos:"ton collègue", grp:["travail"]},
-    {k:"boss", l:"Mon ou ma boss", pos:"ton ou ta boss", grp:["travail"]}]}
+    {k:"colf", gd:"f", l:"Une collègue", pos:"ta collègue", grp:["travail"]},
+    {k:"colm", gd:"m", l:"Un collègue", pos:"ton collègue", grp:["travail"]},
+    {k:"coln", gd:"n", l:"Un collègue ou une collègue", pos:"ton collègue ou ta collègue", grp:["travail"]},
+    {k:"bossf", gd:"f", l:"Ma boss", pos:"ta boss", grp:["travail"]},
+    {k:"bossm", gd:"m", l:"Mon boss", pos:"ton boss", grp:["travail"]},
+    {k:"boss", gd:"n", l:"Mon ou ma boss", pos:"ton ou ta boss", grp:["travail"]}]}
 ];
 const RELS = REL.flatMap(g => g.items);
-/* Les paires féminin / masculin partagent un même cadre à deux moitiés : moins de cases, un seul clic */
-const DUO = {amie:"ami", mere:"pere", soeur:"frere", gm:"gp", bm:"bp", colf:"colm"};
-const relPills = g => {
-  const byK = Object.fromEntries(g.items.map(r => [r.k, r])), done = new Set();
-  return g.items.map(r => {
-    if (done.has(r.k)) return "";
-    const b = DUO[r.k] && byK[DUO[r.k]];
-    if (!b) return pill("rel", r.k, r.l, A.rel === r.k);
-    done.add(b.k);
-    return `<span class="duo">${pill("rel", r.k, r.l, A.rel === r.k)}${pill("rel", b.k, b.l, A.rel === b.k)}</span>`;
-  }).join("");
-};
+const GENDER = [{k:"f", l:"Une femme"}, {k:"m", l:"Un homme"}, {k:"n", l:"Autre ou non précisé"}];
+/* Même rôle dans les trois genres : [féminin, masculin, neutre] */
+const ROLE_SETS = [["bff","bffm","bffn"],["amie","ami","amin"],["enff","enfance","enfn"],["mere","pere","parent"],["soeur","frere","fratn"],["gm","gp","grandp"],["bm","bp","beaup"],["colf","colm","coln"],["bossf","bossm","boss"]];
+const GI = {f:0, m:1, n:2};
+const gender = () => A.gender || RELS.find(r => r.k === A.rel)?.gd || null;
+const roleKey = (k, g) => { const set = ROLE_SETS.find(x => x.includes(k)); return set ? set[GI[g]] : k; };
+const relPills = (gd, grp) => grp.items
+  .map(r => roleKey(r.k, gd)).filter((k, i, arr) => arr.indexOf(k) === i)
+  .map(k => { const r = RELS.find(x => x.k === k); return pill("rel", r.k, r.l, A.rel === r.k); }).join("");
 const AGE = [{k:0,l:"Moins de 18 ans"},{k:1,l:"18 à 30 ans"},{k:2,l:"30 à 50 ans"},{k:3,l:"50 à 70 ans"},{k:4,l:"Plus de 70 ans"}];
 
 /* 2. Occasion et délai */
@@ -448,7 +453,7 @@ const TH = [
 
 /* 1 bis. Proximité : demandée seulement quand la relation ne la dit pas */
 const CLOSE = [{k:3,l:"Très bien"},{k:2,l:"Plutôt bien"},{k:1,l:"Pas tant que ça"}];
-const askClose = () => ["amie","ami","bm","bp","colf","colm","boss"].includes(A.rel);
+const askClose = () => ["amie","ami","amin","bm","bp","beaup","colf","colm","coln","boss","bossf","bossm"].includes(A.rel);
 
 /* 4. Son style : une question scénario, plus concrète que des curseurs */
 const PROF = [
@@ -821,7 +826,7 @@ const MAT = {
 };
 
 /* Valeurs par défaut */
-IDEAS.forEach(it => { it.r ??= ["all"]; it.o ??= ["all"]; it.a ??= [0,4]; it.p ??= [0,0,0]; it.x ??= []; it.mat ??= MAT[it.n] || []; });
+IDEAS.forEach(it => { it.r ??= ["all"]; it.o ??= ["all"]; it.a ??= [0,4]; it.p ??= [0,0,0]; it.x ??= []; it.mat ??= MAT[it.n] || []; if (it.r.includes("bff")) it.r.push("bffm", "bffn"); if (it.r.includes("enfance")) it.r.push("enff", "enfn"); });
 /* Contenu des kits : une base écrite et relue par Tadam. L'IA ne fait que remplir les créneaux de personnalisation
    (le proche, ses goûts, l'effet voulu), elle n'invente pas le kit. Ici : les 3 DIY phares, extraits personnalisés en dur pour le prototype. */
 const SCENE = {
@@ -887,7 +892,7 @@ IDEAS.forEach(it => {
   it.intime ??= it.t !== "buy" && v === 1 && !it.r.includes("travail");
 });
 
-const A = {rel:null, age:null, close:null, occ:null, del:null, th:[], nsp:false, pet:null, prof:null, x:[], fx:null, bud:null, time:null};
+const A = {gender:null, rel:null, age:null, close:null, occ:null, del:null, th:[], nsp:false, pet:null, prof:null, x:[], fx:null, bud:null, time:null};
 let step = 0, picks = [], cur = 0, lastStep = -1;
 const $ = s => document.querySelector(s);
 const panel = $("#panel"), results = $("#results");
@@ -914,10 +919,11 @@ const STEPS = [
    sum:() => cap(rel().pos) + ", " + AGE[A.age].l.toLowerCase(),
    view:() => `
     <h2 class="q-title">C'est pour qui${NB}?</h2>
-    <p class="q-help">${!A.rel ? "Choisis la personne, on affine juste après." : A.age === null ? "Et quel âge a " + rel().pos + NB + "?" : askClose() && !A.close ? "Et tu connais " + rel().pos + " comment" + NB + "?" : "C'est noté."}</p>
-    ${REL.map(g => `<div class="block" role="group" aria-label="${g.g}"><span class="lbl">${g.g}</span><div class="pills">${relPills(g)}</div></div>`).join("")}
+    <p class="q-help">${!gender() ? "Commence par dire si c'est une femme, un homme, ou si tu préfères rester neutre." : !A.rel ? "Et quel rôle a cette personne pour toi" + NB + "?" : A.age === null ? "Et quel âge a " + rel().pos + NB + "?" : askClose() && !A.close ? "Et tu connais " + rel().pos + " comment" + NB + "?" : "C'est noté."}</p>
+    <div class="block" role="group" aria-label="Genre"><div class="pills">${GENDER.map(g => pill("gender", g.k, g.l, gender() === g.k)).join("")}</div></div>
+    ${gender() ? REL.map(g => blk("rel-" + g.g, g.g, `<div class="pills">${relPills(gender(), g)}</div>`)).join("") : ""}
     ${blk("age", "Son âge", `<div class="pills">${AGE.map(a => pill("age", a.k, a.l, A.age === a.k)).join("")}</div>`, !!A.rel)}
-    ${blk("close", "Tu le ou la connais", `<div class="pills">${CLOSE.map(c => pill("close", c.k, c.l, A.close === c.k)).join("")}</div>`, !!A.rel && A.age !== null && askClose())}`},
+    ${blk("close", {f:"Tu la connais", m:"Tu le connais", n:"Tu le ou la connais"}[gender()] || "Tu le ou la connais", `<div class="pills">${CLOSE.map(c => pill("close", c.k, c.l, A.close === c.k)).join("")}</div>`, !!A.rel && A.age !== null && askClose())}`},
   {auto:true, gate:"occ", valid:() => A.occ && A.del,
    sum:() => occNow().l(A.rel) + ", " + DEL[A.del-1].l.toLowerCase(),
    view:() => `
@@ -988,9 +994,10 @@ panel.addEventListener("click", e => {
   const key = b.dataset.key;
   if (b.dataset.set){
     const set = b.dataset.set, v = ["age","close","del","bud","time"].includes(set) ? +b.dataset.v : b.dataset.v;
-    const NEXT = {rel:"age", age:"close", occ:"del", fx:"bud", bud:"time"};
+    const NEXT = {gender:"rel-Amis", rel:"age", age:"close", occ:"del", fx:"bud", bud:"time"};
     if (A[set] === null && NEXT[set]) fresh = NEXT[set];
     A[set] = v;
+    if (set === "gender" && A.rel) A.rel = roleKey(A.rel, v);
     if (set === "rel" && A.occ && !occs().some(o => o.k === A.occ)) A.occ = null;
   } else if (b.dataset.toggle){
     if (b.getAttribute("aria-disabled") === "true") return;
@@ -1240,7 +1247,7 @@ function showIdea(reveal = false){
 
 function edit(){ $("#quiz").hidden = false; results.hidden = true; lastStep = -1; go(0); $("#quiz").scrollIntoView({behavior:"smooth"}); }
 function restart(){
-  Object.assign(A, {rel:null, age:null, close:null, occ:null, del:null, th:[], nsp:false, pet:null, prof:null, x:[], fx:null, bud:null, time:null, __reached:0});
+  Object.assign(A, {gender:null, rel:null, age:null, close:null, occ:null, del:null, th:[], nsp:false, pet:null, prof:null, x:[], fx:null, bud:null, time:null, __reached:0});
   edit();
 }
 
@@ -1318,7 +1325,7 @@ const EXAMPLES = [
   {rel:"pere", age:3, occ:"retraite", del:3, th:["musique"], prof:"cocon", fx:"epater", bud:5, time:0},
   {rel:"enfance", age:2, occ:"rien", del:2, th:["jeux"], prof:"souvenirs", fx:"emotion", bud:1, time:2}
 ];
-const BLANK = {rel:null, age:null, close:null, occ:null, del:null, th:[], nsp:false, pet:null, prof:null, x:[], fx:null, bud:null, time:null};
+const BLANK = {gender:null, rel:null, age:null, close:null, occ:null, del:null, th:[], nsp:false, pet:null, prof:null, x:[], fx:null, bud:null, time:null};
 let exStart = 0;
 function withAnswers(ex, fn){
   const saved = JSON.parse(JSON.stringify(A));

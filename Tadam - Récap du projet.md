@@ -72,10 +72,9 @@ Principes tirés du benchmark :
 La suite de chaque étape s'affiche au fil des clics. On passe tout seul à l'étape suivante dès qu'elle est complète (étapes 1, 2, 4 et 5), sans bouton, y compris quand on revient modifier une réponse. Le bouton « Continuer » n'existe qu'à l'étape 3, la seule à choix multiples. Mélanie a demandé de ne pas afficher de bouton inutile.
 
 1. **Pour qui**
-   - Amis : ma meilleure amie, une amie, un ami, un ami d'enfance.
-   - Amour : ma moitié.
-   - Famille : ma mère, mon père, ma sœur, mon frère, ma grand-mère, mon grand-père, ma belle-mère, mon beau-père.
-   - Travail : une collègue, un collègue, mon ou ma boss.
+   - D'abord le genre : une femme, un homme, ou autre ou non précisé (formulations neutres : mon parent, mon frère ou ma sœur, un ami ou une amie, etc.).
+   - Puis le rôle, dans une seule liste dont les libellés s'adaptent au genre : meilleur(e) ami(e), ami(e), ami(e) d'enfance, ma moitié, parent, frère ou sœur, grand-parent, beau-parent, collègue, boss. Changer de genre convertit le rôle déjà choisi.
+   - Pour le genre neutre, le matching s'appuie sur les groupes (amis, parents, fratrie, grands-parents, travail) : les idées prévues pour un seul genre (par exemple fête des mères) ne sont pas proposées.
    - Puis l'âge : moins de 18 ans, 18 à 30, 30 à 50, 50 à 70, plus de 70.
    - Puis, seulement pour une amie, un ami, les beaux-parents et le travail : « Tu le ou la connais très bien, plutôt bien, pas tant que ça ». Si c'est « pas tant que ça », on écarte les cadeaux trop intimes et on privilégie l'utile.
 2. **L'occasion et le délai**
